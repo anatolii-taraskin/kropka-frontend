@@ -1,0 +1,14 @@
+:root{
+  --brand-bg:#0f1418;
+  --brand-dark:#1c232a;
+  --brand-accent:#A32626;
+  --brand-text:#E8EDF2;
+  --brand-muted:#9AA7B2;
+}
+html,body{background:var(--brand-bg);color:var(--brand-text)}
+
+@font-face{
+  font-family:"Komika";
+  src:url("../assets/fonts/Komika/KOMTITK_.ttf") format("truetype");
+  font-display:swap;
+}

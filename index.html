@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Kropka Studio — Batumi</title>
+  <link rel="stylesheet" href="./css/custom.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: 'var(--brand-bg)',
+              dark: 'var(--brand-dark)',
+              accent: 'var(--brand-accent)',
+              text: 'var(--brand-text)',
+              muted: 'var(--brand-muted)',
+            }
+          },
+          fontFamily: { brand: ['system-ui','-apple-system','Segoe UI','Roboto','Arial','sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>.glass{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);backdrop-filter:saturate(140%) blur(8px)}</style>
+</head>
+<body class="bg-brand-bg text-brand-text font-brand">
+  <header class="sticky top-0 z-20 backdrop-blur bg-[rgba(28,35,42,0.6)] shadow-lg">
+    <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3">
+        <img src="assets/icons/logo.png"
+             alt="Kropka Studio"
+             class="h-10 w-10 rounded-full ring-2 ring-white/15 object-cover">
+        <span class="text-xl font-bold tracking-wide">Kropka Studio</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm">
+          <!-- LANG -->
+          <div class="flex items-center gap-2 pr-3 mr-3 border-r border-white/10">
+              <a href="/ru" hreflang="ru" lang="ru"
+                 class="inline-flex items-center justify-center w-7 h-7 rounded-full ring-2 ring-brand-accent"
+                 aria-label="Русский">
+                  <svg class="w-12 h-12" enable-background="new 0 0 512 512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><circle cx="256" cy="256" fill="#f0f0f0" r="256"/><path d="m496.077 345.043c10.291-27.733 15.923-57.729 15.923-89.043s-5.632-61.31-15.923-89.043h-480.154c-10.29 27.733-15.923 57.729-15.923 89.043s5.633 61.31 15.923 89.043l240.077 22.261z" fill="#0052b4"/><path d="m256 512c110.071 0 203.906-69.472 240.077-166.957h-480.154c36.171 97.485 130.006 166.957 240.077 166.957z" fill="#d80027"/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/></svg>
+              </a>
+              <a href="/en" hreflang="en" lang="en"
+                 class="inline-flex items-center justify-center w-7 h-7 rounded-full hover:ring-2 hover:ring-blue/30"
+                 aria-label="English">
+                  <svg class="w-12 h-12" enable-background="new 0 0 512 512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><circle cx="256" cy="256" fill="#f0f0f0" r="256"/><g fill="#d80027"><path d="m244.87 256h267.13c0-23.106-3.08-45.49-8.819-66.783h-258.311z"/><path d="m244.87 122.435h229.556c-15.671-25.572-35.708-48.175-59.07-66.783h-170.486z"/><path d="m256 512c60.249 0 115.626-20.824 159.356-55.652h-318.712c43.73 34.828 99.107 55.652 159.356 55.652z"/><path d="m37.574 389.565h436.852c12.581-20.529 22.338-42.969 28.755-66.783h-494.362c6.417 23.814 16.174 46.254 28.755 66.783z"/></g><path d="m118.584 39.978h23.329l-21.7 15.765 8.289 25.509-21.699-15.765-21.699 15.765 7.16-22.037c-19.106 15.915-35.852 34.561-49.652 55.337h7.475l-13.813 10.035c-2.152 3.59-4.216 7.237-6.194 10.938l6.596 20.301-12.306-8.941c-3.059 6.481-5.857 13.108-8.372 19.873l7.267 22.368h26.822l-21.7 15.765 8.289 25.509-21.699-15.765-12.998 9.444c-1.301 10.458-1.979 21.11-1.979 31.921h256c0-141.384 0-158.052 0-256-50.572 0-97.715 14.67-137.416 39.978zm9.918 190.422-21.699-15.765-21.699 15.765 8.289-25.509-21.7-15.765h26.822l8.288-25.509 8.288 25.509h26.822l-21.7 15.765zm-8.289-100.083 8.289 25.509-21.699-15.765-21.699 15.765 8.289-25.509-21.7-15.765h26.822l8.288-25.509 8.288 25.509h26.822zm100.115 100.083-21.699-15.765-21.699 15.765 8.289-25.509-21.7-15.765h26.822l8.288-25.509 8.288 25.509h26.822l-21.7 15.765zm-8.289-100.083 8.289 25.509-21.699-15.765-21.699 15.765 8.289-25.509-21.7-15.765h26.822l8.288-25.509 8.288 25.509h26.822zm0-74.574 8.289 25.509-21.699-15.765-21.699 15.765 8.289-25.509-21.7-15.765h26.822l8.288-25.509 8.288 25.509h26.822z" fill="#0052b4"/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/></svg>
+              </a>
+              <a href="/ka" hreflang="ka" lang="ka"
+                 class="inline-flex items-center justify-center w-7 h-7 rounded-full hover:ring-2 hover:ring-blue/30"
+                 aria-label="ქართული">
+                  <svg class="w-12 h-12" enable-background="new 0 0 512 512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><circle cx="256" cy="256" fill="#f0f0f0" r="256"/><g fill="#d80027"><path d="m509.833 222.609h-220.44-.001v-220.442c-10.931-1.423-22.075-2.167-33.392-2.167s-22.461.744-33.391 2.167v220.44.001h-220.442c-1.423 10.931-2.167 22.075-2.167 33.392 0 11.319.744 22.461 2.167 33.391h220.44.001v220.442c10.931 1.423 22.075 2.167 33.392 2.167s22.461-.743 33.391-2.167v-220.44-.001h220.442c1.423-10.931 2.167-22.073 2.167-33.392 0-11.317-.744-22.461-2.167-33.391z"/><path d="m155.826 122.435v-33.392h-33.391v33.392h-33.392v33.391h33.392v33.391h33.391v-33.391h33.391v-33.391z"/><path d="m389.565 122.435v-33.392h-33.391v33.392h-33.391v33.391h33.391v33.391h33.391v-33.391h33.392v-33.391z"/><path d="m155.826 356.174v-33.391h-33.391v33.391h-33.392v33.391h33.392v33.392h33.391v-33.392h33.391v-33.391z"/><path d="m389.565 356.174v-33.391h-33.391v33.391h-33.391v33.391h33.391v33.392h33.391v-33.392h33.392v-33.391z"/></g><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/><g/></svg>
+              </a>
+          </div>
+        <a href="#about"    class="hover:text-brand-accent">о нас</a>
+        <a href="#price"   class="hover:text-brand-accent">цены</a>
+        <a href="#stuff"   class="hover:text-brand-accent">оборудование</a>
+        <a href="#teach"   class="hover:text-brand-accent">преподаватели</a>
+        <a href="#contacts" class="hover:text-brand-accent">контакты</a>
+      </nav>
+      <button class="md:hidden p-2 rounded hover:bg-white/5" id="menuBtn" aria-label="menu">
+        <div class="w-6 h-0.5 bg-current mb-1"></div>
+        <div class="w-6 h-0.5 bg-current mb-1"></div>
+        <div class="w-6 h-0.5 bg-current"></div>
+      </button>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden border-t border-white/10">
+      <div class="mx-auto max-w-7xl px-4 py-3 grid gap-2 text-sm">
+        <a href="#about" class="py-2">о нас</a>
+        <a href="#price" class="py-2">цены</a>
+        <a href="#stuff" class="py-2">оборудование</a>
+        <a href="#teach" class="py-2">преподаватели</a>
+        <a href="#contacts" class="py-2">контакты</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="relative pt-8 md:pt-12">
+    <div class="mx-auto max-w-7xl px-4 grid gap-10 lg:grid-cols-2 items-center lg:h-80">
+      <div class="flex flex-col justify-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
+          Репточка и студия звукозаписи в Батуми
+        </h1>
+        <p class="mt-4 text-brand-muted">
+          У нас можно громко 🔊 · 13t Agmashenebeli st., Batumi · +995 596 173 001
+        </p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="#price" class="px-5 py-3 rounded bg-brand-accent text-white">Прайс</a>
+          <a href="#info"  class="px-5 py-3 rounded border border-white/15 hover:bg-white/5">Расписание и инфо</a>
+        </div>
+      </div>
+
+      <!-- правая колонка с фоном -->
+      <div class="rounded-2xl shadow-lg
+                bg-[url('assets/main_page/main_img.png')] bg-cover bg-center
+                h-56 sm:h-64 md:h-72 lg:h-full">
+      </div>
+    </div>
+  </section>
+
+  <!-- Разделитель -->
+  <div class="mx-auto max-w-7xl px-4 pt-12 pb-10">
+    <div class="flex items-center">
+      <span class="h-px bg-white/10 flex-1"></span>
+    </div>
+  </div>
+
+  <section id="about" class="">
+    <div class="mx-auto max-w-7xl px-4 grid lg:grid-cols-2 gap-8 items-start">
+      <!-- Левая колонка -->
+      <div>
+        <h2 class="text-2xl font-bold mb-4">О нас</h2>
+        <p class="text-brand-muted space-y-1">
+          <span class="flex items-start gap-2">
+            <span class="text-lg">🎙️</span>
+            <span>Репточка и студия звукозаписи в Батуми</span>
+          </span>
+                  <span class="flex items-start gap-2">
+            <span class="text-lg">🔊</span>
+            <span>У нас можно громко</span>
+          </span>
+                  <span class="flex items-start gap-2">
+            <span class="text-lg">❄️</span>
+            <span>Кондиционер работает — окна во время занятий не открываем</span>
+          </span>
+        </p>
+
+        <ul class="mt-5 space-y-2 text-sm text-brand-muted">
+          <li>• Репетиции групп и сольных артистов</li>
+          <li>• Запись и продакшн</li>
+          <li>• Уроки музыки</li>
+          <li>• Чистота и аккуратность: вещи после себя возвращаем на место</li>
+        </ul>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="https://t.me/kropka_batumi_admin" target="_blank" rel="noopener noreferrer"
+             class="px-5 py-3 rounded bg-brand-accent text-white">Записаться в Telegram</a>
+
+          <!-- Кнопка копирования -->
+          <button type="button"
+                  class="px-5 py-3 rounded border border-white/15 hover:bg-white/5"
+                  data-copy="+995596173001" aria-label="Скопировать телефон">
+            Скопировать телефон: +995 596 173 001
+          </button>
+        </div>
+      </div>
+
+      <!-- Правая колонка: Правила + Ссылки -->
+      <div class="grid gap-6">
+        <!-- Контакты слева, телефон — тоже копирование -->
+        <div class="mt-6 glass rounded-2xl p-6">
+          <div class="font-semibold mb-3">Контакты</div>
+          <ul class="text-sm text-brand-muted space-y-2">
+            <li>📞 <button type="button" class="underline-offset-2 hover:text-brand-accent" data-copy="+995596173001">+995 596 173 001</button></li>
+            <li>✉️ <a href="mailto:kropka.batumi@gmail.com" class="hover:text-brand-accent">kropka.batumi@gmail.com</a></li>
+            <li>📍 13t Agmashenebeli st., Batumi, Georgia</li>
+          </ul>
+        </div>
+
+        <!-- Ссылки -->
+        <div class="glass rounded-2xl p-6">
+          <div class="font-semibold mb-3">Ссылки</div>
+          <ul class="text-sm text-brand-muted space-y-2">
+            <li>📸 <a href="https://www.instagram.com/kropka_batumi/" target="_blank" rel="noopener noreferrer" class="hover:text-brand-accent">Instagram</a></li>
+            <li>📘 <a href="https://www.facebook.com/Kropka.Batumi" target="_blank" rel="noopener noreferrer" class="hover:text-brand-accent">Facebook</a></li>
+            <li>💬 <a href="https://t.me/kropka_batumi" target="_blank" rel="noopener noreferrer" class="hover:text-brand-accent">Telegram-канал</a></li>
+            <li>👤 <a href="https://t.me/kropka_batumi_admin" target="_blank" rel="noopener noreferrer" class="hover:text-brand-accent">Администратор в TG</a></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mx-auto max-w-7xl px-4">
+      <!-- Правила -->
+      <div class="glass rounded-2xl p-6 mt-10">
+        <div class="font-semibold mb-3">Правила студии</div>
+        <ul class="text-sm text-brand-muted space-y-2 list-disc pl-5">
+          <li>Возвращаем на место всё, чем пользовались (микрофоны, комбики, стойки, барабаны, тарелки, стулья). Чистим за собой, моем кружки.</li>
+          <li>Окна во время занятий не открываем — используем кондиционер.</li>
+          <li>В конце занятия: выключаем электроприборы, сетевые фильтры, свет; у микрофонов/пульта/комбиков — <em>Volume на 0</em>.</li>
+          <li>Никакой еды и напитков на оборудовании. Бережное отношение ко всему в студии обязательно.</li>
+          <li>О поломках и нарушениях предыдущих гостей сразу сообщаем администратору Михаилу: <button type="button" class="underline-offset-2 hover:text-brand-accent" data-copy="+995596173001">+995 596 173 001</button>.</li>
+          <li>Отмена бесплатно — при уведомлении не менее чем за 2 суток.</li>
+          <li>Оплату приносим без сдачи.</li>
+          <li>За нарушения — предупреждение/штраф (уборщику); за систематические или циничные — бан.</li>
+          <li>Используя помещение, вы автоматически принимаете правила и несёте ответственность за их соблюдение.</li>
+          <li>Будем рады, если отметите нас в соцсетях, расскажете друзьям и поделитесь идеями по улучшению студии.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="price" class="py-14 bg-brand-dark/50">
+    <div class="mx-auto max-w-7xl px-4">
+      <h2 class="text-2xl font-bold mb-6">Прайс</h2>
+
+      <!-- Баннер со скидкой -->
+      <div class="rounded-2xl border border-dashed border-brand-accent/50 bg-white/[.03] px-5 py-4 mb-6">
+        <div class="flex items-center gap-3">
+          <span class="text-lg leading-none align-middle">🎟️</span>
+          <p class="text-sm leading-6 text-brand-muted">
+            <strong class="text-brand-text">Скидка 20%</strong> при покупке
+            <strong class="text-brand-text">месячного абонемента</strong> на 5 занятий.
+          </p>
+        </div>
+      </div>
+
+      <!-- Тарифы -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Соло / с учеником -->
+        <article class="glass rounded-2xl p-6">
+          <div class="font-semibold">Соло / с учеником</div>
+          <ul class="mt-3 text-sm text-brand-muted space-y-1">
+            <li>1 час — <span class="text-brand-text font-medium">20 ₾</span></li>
+            <li>2 часа — <span class="text-brand-text font-medium">30 ₾</span></li>
+            <li>3 часа — <span class="text-brand-text font-medium">40 ₾</span></li>
+          </ul>
+          <a href="#contacts" class="mt-4 inline-block px-4 py-2 rounded bg-brand-accent text-white">Записаться</a>
+        </article>
+
+        <!-- Дуэт -->
+        <article class="glass rounded-2xl p-6">
+          <div class="font-semibold">Дуэт</div>
+          <ul class="mt-3 text-sm text-brand-muted space-y-1">
+            <li>1 час — <span class="text-brand-text font-medium">30 ₾</span></li>
+            <li>2 часа — <span class="text-brand-text font-medium">40 ₾</span></li>
+            <li>3 часа — <span class="text-brand-text font-medium">50 ₾</span></li>
+          </ul>
+          <a href="#contacts" class="mt-4 inline-block px-4 py-2 rounded bg-brand-accent text-white">Записаться</a>
+        </article>
+
+        <!-- Группа -->
+        <article class="glass rounded-2xl p-6">
+          <div class="font-semibold">Группа</div>
+          <ul class="mt-3 text-sm text-brand-muted space-y-1">
+            <li>2 часа — <span class="text-brand-text font-medium">50 ₾</span></li>
+            <li>3 часа — <span class="text-brand-text font-medium">65 ₾</span></li>
+            <li>4 часа — <span class="text-brand-text font-medium">80 ₾</span></li>
+          </ul>
+          <a href="#contacts" class="mt-4 inline-block px-4 py-2 rounded bg-brand-accent text-white">Записаться</a>
+        </article>
+
+        <!-- 2 ударные установки -->
+        <article class="glass rounded-2xl p-6">
+          <div class="font-semibold">2 ударные установки</div>
+          <ul class="mt-3 text-sm text-brand-muted space-y-1">
+            <li>1 час — <span class="text-brand-text font-medium">25 ₾</span></li>
+            <li>2 часа — <span class="text-brand-text font-medium">35 ₾</span></li>
+            <li>3 часа — <span class="text-brand-text font-medium">45 ₾</span></li>
+          </ul>
+          <a href="#contacts" class="mt-4 inline-block px-4 py-2 rounded bg-brand-accent text-white">Записаться</a>
+        </article>
+
+        <!-- Аренда инструментов -->
+        <article class="glass rounded-2xl p-6">
+          <div class="font-semibold">Аренда инструментов</div>
+          <ul class="mt-3 text-sm text-brand-muted space-y-1">
+            <li>Электрогитара <span class="text-brand-text font-medium">5 ₾</span> / сессия <span class="opacity-70">· Ibanez (EMG 81/85)</span></li>
+            <li>Бас-гитара <span class="text-brand-text font-medium">5 ₾</span> / сессия <span class="opacity-70">· Washburn</span></li>
+          </ul>
+        </article>
+
+        <!-- Для барабанщика -->
+        <article class="glass rounded-2xl p-6">
+          <div class="font-semibold">Для барабанщика</div>
+          <ul class="mt-3 text-sm text-brand-muted space-y-1">
+            <li>Вторая ударка <span class="text-brand-text font-medium">5 ₾</span> / сессия <span class="opacity-70">· Gretsch Energy</span></li>
+            <li>Кардан (двойная педаль) <span class="text-brand-text font-medium">5 ₾</span> / сессия <span class="opacity-70">· Millenium PD-222</span></li>
+          </ul>
+        </article>
+      </div>
+
+      <!-- Примечания -->
+      <p class="mt-6 text-xs text-brand-muted">
+        Цены указаны в лари (₾). Актуальные слоты и бронирование — через
+        <a href="https://t.me/kropka_batumi_admin" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-1 underline-offset-2 hover:text-brand-accent">
+          <span class="text-sm">👤</span><span>администратора в Telegram</span>
+        </a>.
+      </p>
+    </div>
+  </section>
+
+  <section id="stuff" class="py-14">
+    <div class="mx-auto max-w-7xl px-4">
+      <h2 class="text-2xl font-bold mb-2">Оборудование</h2>
+      <p class="text-sm text-brand-muted mb-6">Райдер дополним; ниже — актуальное в зале.</p>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Marshall -->
+        <article class="glass rounded-2xl overflow-hidden">
+          <div class="h-44 bg-cover bg-center" style="background-image:url('assets/stuff/marshall.jpg')" role="img" aria-label="Marshall гитарный комбо"></div>
+          <div class="p-6">
+            <div class="font-semibold">Marshall — гитарный комбо</div>
+            <ul class="mt-3 text-sm text-brand-muted space-y-1">
+              <li>Тип: комбоусилитель (гитара)</li>
+              <li>Модель/мощность: уточняется <span class="opacity-70">(MG-серия на фото)</span></li>
+              <li>Каналы: Clean / OD · FX: есть</li>
+            </ul>
+            <a href="https://t.me/kropka_batumi_admin" target="_blank" rel="noopener"
+               class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded bg-brand-accent text-white">👤 Уточнить в TG</a>
+          </div>
+        </article>
+
+        <!-- Kustom -->
+        <article class="glass rounded-2xl overflow-hidden">
+          <div class="h-44 bg-cover bg-center" style="background-image:url('assets/stuff/kustom.jpg')" role="img" aria-label="Kustom гитарный комбо Celestion"></div>
+          <div class="p-6">
+            <div class="font-semibold">Kustom — гитарный комбо</div>
+            <ul class="mt-3 text-sm text-brand-muted space-y-1">
+              <li>Тип: комбоусилитель (гитара)</li>
+              <li>Динамик: Celestion</li>
+              <li>Модель/мощность: уточняется</li>
+            </ul>
+            <a href="https://t.me/kropka_batumi_admin" target="_blank" rel="noopener"
+               class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded bg-brand-accent text-white">👤 Уточнить в TG</a>
+          </div>
+        </article>
+
+        <!-- Fender -->
+        <article class="glass rounded-2xl overflow-hidden">
+          <div class="h-44 bg-cover bg-center" style="background-image:url('assets/stuff/fender.jpg')" role="img" aria-label="Fender гитарный комбо"></div>
+          <div class="p-6">
+            <div class="font-semibold">Fender — гитарный комбо</div>
+            <ul class="mt-3 text-sm text-brand-muted space-y-1">
+              <li>Тип: комбоусилитель (гитара)</li>
+              <li>Модель/мощность: уточняется</li>
+              <li>Характер: фирменный чистый Fender</li>
+            </ul>
+            <a href="https://t.me/kropka_batumi_admin" target="_blank" rel="noopener"
+               class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded bg-brand-accent text-white">👤 Уточнить в TG</a>
+          </div>
+        </article>
+
+        <!-- Gretsch Energy (drums) -->
+        <article class="glass rounded-2xl overflow-hidden">
+          <div class="h-44 bg-cover bg-center" style="background-image:url('assets/stuff/gretsch-energy.jpg')" role="img" aria-label="Gretsch Energy барабанная установка"></div>
+          <div class="p-6">
+            <div class="font-semibold">Gretsch Energy — барабанная установка</div>
+            <ul class="mt-3 text-sm text-brand-muted space-y-1">
+              <li>Состав: бочка, малый, томы, стойки</li>
+              <li>Тарелки: хэт, крэш, райд <span class="opacity-70">(бренд уточняется)</span></li>
+              <li>Педаль: одинарная <span class="opacity-70">(двойная — в допах)</span></li>
+            </ul>
+            <a href="https://t.me/kropka_batumi_admin" target="_blank" rel="noopener"
+               class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded bg-brand-accent text-white">👤 Уточнить в TG</a>
+          </div>
+        </article>
+
+        <!-- ↓ два слота под будущие карточки для симметрии (раскомментируешь, когда появится 5-й/6-й инструмент) -->
+        <!--
+        <article class="glass rounded-2xl overflow-hidden">
+          <div class="h-44 bg-[linear-gradient(to_bottom_right,rgba(255,255,255,.06),transparent)]"></div>
+          <div class="p-6">
+            <div class="font-semibold">Инструмент #5</div>
+            <p class="mt-3 text-sm text-brand-muted">Описание и характеристики.</p>
+          </div>
+        </article>
+
+        <article class="glass rounded-2xl overflow-hidden">
+          <div class="h-44 bg-[linear-gradient(to_bottom_right,rgba(255,255,255,.06),transparent)]"></div>
+          <div class="p-6">
+            <div class="font-semibold">Инструмент #6</div>
+            <p class="mt-3 text-sm text-brand-muted">Описание и характеристики.</p>
+          </div>
+        </article>
+        -->
+      </div>
+
+      <p class="mt-6 text-xs text-brand-muted">
+        Фото носят иллюстративный характер; точные спецификации будут в техническом райдере.
+      </p>
+    </div>
+  </section>
+
+  <section id="teach" class="py-14 bg-brand-dark/50">
+    <div class="mx-auto max-w-7xl px-4">
+      <h2 class="text-2xl font-bold mb-6">Преподаватели</h2>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <article class="glass rounded-2xl p-4">
+          <div class="h-40 rounded-xl bg-white/5"></div>
+          <div class="mt-3 font-semibold">Имя преподавателя</div>
+          <div class="text-sm text-brand-muted">Инструмент · опыт</div>
+        </article>
+        <article class="glass rounded-2xl p-4">
+          <div class="h-40 rounded-xl bg-white/5"></div>
+          <div class="mt-3 font-semibold">Имя преподавателя</div>
+          <div class="text-sm text-brand-muted">Инструмент · опыт</div>
+        </article>
+        <article class="glass rounded-2xl p-4">
+          <div class="h-40 rounded-xl bg-white/5"></div>
+          <div class="mt-3 font-semibold">Имя преподавателя</div>
+          <div class="text-sm text-brand-muted">Инструмент · опыт</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <footer class="border-t border-white/10">
+    <div class="mx-auto max-w-7xl px-4 py-10 grid lg:grid-cols-3 gap-6 items-start">
+      <!-- Левая часть: карта -->
+      <div class="lg:col-span-2">
+        <div class="rounded-2xl overflow-hidden ring-1 ring-white/10 shadow-md">
+          <iframe
+                  class="w-full h-64 md:h-72 lg:h-80"
+                  loading="lazy"
+                  allowfullscreen
+                  referrerpolicy="no-referrer-when-downgrade"
+                  src="https://www.google.com/maps?q=Kropka+Music+Studio+Batumi&output=embed"
+                  title="Kropka Music Studio на карте">
+          </iframe>
+        </div>
+      </div>
+
+      <!-- ПРАВАЯ КОЛОНКА: название и ссылки -->
+      <div class="space-y-2">
+        <div class="text-sm font-semibold">Kropka Music Studio</div>
+        <a href="https://www.google.com/maps/search/?api=1&query=Kropka+Music+Studio,+Batumi,+Georgia"
+           target="_blank" rel="noopener noreferrer"
+           class="text-brand-muted underline-offset-2 hover:text-brand-accent">
+          Открыть в Google Maps
+        </a>
+        <div>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=Kropka+Music+Studio,+Batumi,+Georgia"
+             target="_blank" rel="noopener noreferrer"
+             class="text-sm text-brand-muted underline-offset-2 hover:text-brand-accent">
+            Проложить маршрут
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-7xl px-4 pb-8 text-sm text-brand-muted">
+      © Kropka Studio, Batumi
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('menuBtn').addEventListener('click',()=> {
+      document.getElementById('mobileMenu').classList.toggle('hidden')
+    })
+  </script>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Kropka Studio",
+      "description": "Репетиционная точка и студия звукозаписи в Батуми. У нас можно громко.",
+      "telephone": "+995596173001",
+      "email": "kropka.batumi@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "13t Agmashenebeli st.",
+        "addressLocality": "Batumi",
+        "addressCountry": "GE"
+      },
+      "sameAs": [
+        "https://www.instagram.com/kropka_batumi/",
+        "https://www.facebook.com/Kropka.Batumi",
+        "https://t.me/kropka_batumi"
+      ]
+    }
+  </script>
+
+  <script>
+    // phone copy
+    (function(){
+      const format = s => s.replace(/^\+?(\d)(\d{3})(\d{3})(\d{3})(\d{3})?$/, (m,a,b,c,d,e)=> e ? `+${a} ${b} ${c} ${d} ${e}` : s);
+      const toast = (msg) => {
+        const n = document.createElement('div');
+        n.textContent = msg;
+        n.className = 'fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl bg-black/80 text-white text-sm shadow-lg transition-opacity';
+        document.body.appendChild(n);
+        setTimeout(()=>{ n.style.opacity = '0'; }, 1200);
+        setTimeout(()=> n.remove(), 1700);
+      };
+      document.querySelectorAll('[data-copy]').forEach(el=>{
+        el.addEventListener('click', async ()=>{
+          const num = el.getAttribute('data-copy');
+          try {
+            await navigator.clipboard.writeText(num);
+            toast('Скопировано: ' + format(num));
+          } catch(e){
+            toast('Не удалось скопировать');
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
