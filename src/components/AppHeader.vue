@@ -9,8 +9,6 @@ const mobileOpen = ref(false);
 const asset = (relativePath) => `${import.meta.env.BASE_URL}assets/${relativePath}`;
 
 const logoSrc = asset('icons/logo.png');
-const heroImageUrl = asset('main_page/main_img.png');
-
 const navLinks = [
   { label: 'о нас', path: '/', name: 'about' },
   { label: 'цены', path: '/pricing', name: 'pricing' },
@@ -137,39 +135,6 @@ const handleNavigate = (path) => {
           {{ link.label }}
         </a>
       </div>
-    </div>
-    <div class="mx-auto max-w-7xl px-4 py-8 md:py-12 grid gap-10 lg:grid-cols-2 items-center lg:h-80">
-      <div class="flex flex-col justify-center">
-        <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">Репетиционная студия в Батуми</h1>
-        <p class="mt-4 text-brand-muted">
-          У нас можно громко 🔊 · 13t Agmashenebeli st., Batumi · +995 596 173 001
-        </p>
-        <div class="mt-6 flex flex-wrap gap-3">
-          <a
-            href="/pricing"
-            class="px-5 py-3 rounded bg-brand-accent text-white"
-            @click.prevent="handleNavigate('/pricing')"
-          >
-            Прайс
-          </a>
-          <a
-            href="/"
-            class="px-5 py-3 rounded border border-white/15 hover:bg-white/5"
-            @click.prevent="handleNavigate('/')"
-          >
-            Расписание и инфо
-          </a>
-        </div>
-      </div>
-      <div
-        class="rounded-2xl shadow-lg bg-cover bg-center h-56 sm:h-64 md:h-72 lg:h-full"
-        :style="{ backgroundImage: `url('${heroImageUrl}')` }"
-        role="img"
-        aria-label="Kropka Studio"
-      ></div>
-    </div>
-    <div class="mx-auto max-w-7xl px-4 pb-6">
-      <span class="block h-px bg-white/10"></span>
     </div>
   </header>
 </template>
