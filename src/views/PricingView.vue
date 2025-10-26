@@ -39,15 +39,27 @@ const tariffs = [
   {
     title: 'Аренда инструментов',
     items: [
-      { label: 'Электрогитара', price: '5 ₾ / сессия · Ibanez (EMG 81/85)' },
-      { label: 'Бас-гитара', price: '5 ₾ / сессия · Washburn' },
+      {
+        label: 'Электрогитара',
+        price: '5 ₾',
+        note: '/ сессия · Ibanez (EMG 81/85)',
+      },
+      { label: 'Бас-гитара', price: '5 ₾', note: '/ сессия · Washburn' },
     ],
   },
   {
     title: 'Для барабанщика',
     items: [
-      { label: 'Вторая ударка', price: '5 ₾ / сессия · Gretsch Energy' },
-      { label: 'Кардан (двойная педаль)', price: '5 ₾ / сессия · Millenium PD-222' },
+      {
+        label: 'Вторая ударка',
+        price: '5 ₾',
+        note: '/ сессия · Gretsch Energy',
+      },
+      {
+        label: 'Кардан (двойная педаль)',
+        price: '5 ₾',
+        note: '/ сессия · Millenium PD-222',
+      },
     ],
   },
 ];
@@ -70,9 +82,14 @@ const tariffs = [
         <article v-for="tariff in tariffs" :key="tariff.title" class="glass rounded-2xl p-6 flex flex-col">
           <div class="font-semibold">{{ tariff.title }}</div>
           <ul class="mt-3 text-sm text-brand-muted space-y-1">
-            <li v-for="item in tariff.items" :key="item.label" class="flex justify-between gap-2">
+            <li
+              v-for="item in tariff.items"
+              :key="item.label"
+              class="flex flex-wrap items-baseline gap-x-2 gap-y-1"
+            >
               <span>{{ item.label }}</span>
-              <span class="text-brand-text font-medium text-right">{{ item.price }}</span>
+              <span class="text-brand-text font-medium whitespace-nowrap">— {{ item.price }}</span>
+              <span v-if="item.note" class="opacity-70">{{ item.note }}</span>
             </li>
           </ul>
           <a
@@ -80,7 +97,7 @@ const tariffs = [
             href="https://t.me/kropka_batumi_admin"
             target="_blank"
             rel="noopener noreferrer"
-            class="mt-4 inline-flex items-center justify-center px-4 py-2 rounded bg-brand-accent text-white"
+            class="mt-4 inline-flex items-center justify-center px-4 py-2 rounded bg-brand-accent text-white self-start"
           >
             Записаться
           </a>
