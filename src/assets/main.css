@@ -1,0 +1,29 @@
+:root {
+  --brand-bg: #0f1418;
+  --brand-dark: #1c232a;
+  --brand-accent: #A32626;
+  --brand-text: #E8EDF2;
+  --brand-muted: #9AA7B2;
+}
+
+@font-face {
+  font-family: "Komika";
+  src: url("/assets/fonts/Komika/KOMTITK_.ttf") format("truetype");
+  font-display: swap;
+}
+
+body {
+  background-color: var(--brand-bg);
+  color: var(--brand-text);
+  font-family: "Komika", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: saturate(140%) blur(8px);
+}
+
+.backdrop-card {
+  background: rgba(28, 35, 42, 0.6);
+}
