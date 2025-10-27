@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia';
 import CopyButton from '@/components/CopyButton.vue';
 import { assetUrl } from '@/lib/assets';
 import { staticContent } from '@/lib/static-content';
+import { DEFAULT_LOCALE_CODE } from '@/lib/i18n';
 import { useApiLanguage } from '@/lib/use-api-language';
 import { useRulesStore, useStudioStore } from '@/stores';
 
@@ -261,12 +262,12 @@ const buildLinks = (source = {}) => {
   return links;
 };
 
-const mapStudioData = (data = {}) => {
-  const name = toStringValue(data.name);
-  const tagline = toStringValue(data.tagline);
-  const address = toStringValue(data.address);
-  const phone = toStringValue(data.phone);
-  const email = toStringValue(data.email);
+const mapStudioData = (data = {}, fallback = {}) => {
+  const name = toStringValue(data.name) || toStringValue(fallback.name);
+  const tagline = toStringValue(data.tagline) || toStringValue(fallback.tagline);
+  const address = toStringValue(data.address) || toStringValue(fallback.address);
+  const phone = toStringValue(data.phone) || toStringValue(fallback.phone);
+  const email = toStringValue(data.email) || toStringValue(fallback.email);
   const normalizedPhone = normalizePhoneNumber(phone);
 
   return {
@@ -275,20 +276,113 @@ const mapStudioData = (data = {}) => {
     address,
     phone,
     normalizedPhone,
-    features: buildFeatureList(data),
-    services: buildServices(data),
-    contacts: buildContacts({
-      phone,
-      email,
-      address,
-      contacts: data.contacts,
-    }, normalizedPhone),
-    links: buildLinks(data),
-    bookingUrl: toStringValue(data.booking_url),
+    features: (() => {
+      const primary = buildFeatureList(data);
+      if (primary.length) {
+        return primary;
+      }
+
+      return buildFeatureList(fallback);
+    })(),
+    services: (() => {
+      const primary = buildServices(data);
+      if (primary.length) {
+        return primary;
+      }
+
+      return buildServices(fallback);
+    })(),
+    contacts: (() => {
+      const primary = buildContacts(
+        {
+          phone,
+          email,
+          address,
+          contacts: data.contacts,
+        },
+        normalizedPhone,
+      );
+
+      if (primary.length) {
+        return primary;
+      }
+
+      return buildContacts(
+        {
+          phone,
+          email,
+          address,
+          contacts: fallback.contacts,
+        },
+        normalizedPhone,
+      );
+    })(),
+    links: (() => {
+      const primary = buildLinks(data);
+      if (primary.length) {
+        return primary;
+      }
+
+      return buildLinks(fallback);
+    })(),
+    bookingUrl: toStringValue(data.booking_url) || toStringValue(fallback.booking_url),
   };
 };
 
-const studioContent = computed(() => mapStudioData(studioData.value ?? {}));
+const currentLocaleCode = computed(() => currentLocale?.value?.code ?? DEFAULT_LOCALE_CODE);
+
+const resolveFallbackValue = (value) => {
+  if (value == null) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return toStringValue(value);
+  }
+
+  if (typeof value === 'object') {
+    const localeCode = currentLocaleCode.value;
+    if (value[localeCode] != null) {
+      return toStringValue(value[localeCode]);
+    }
+
+    if (value[DEFAULT_LOCALE_CODE] != null) {
+      return toStringValue(value[DEFAULT_LOCALE_CODE]);
+    }
+  }
+
+  return toStringValue(value);
+};
+
+const fallbackStudioRaw = computed(() => {
+  const fallback = staticContent.about?.fallback ?? {};
+
+  const features = (fallback.features ?? [])
+    .map((item) => ({
+      icon: toStringValue(item?.icon) || '•',
+      text: resolveFallbackValue(item?.text),
+    }))
+    .filter((item) => item.text);
+
+  const services = (fallback.services ?? [])
+    .map((item) => resolveFallbackValue(item))
+    .filter(Boolean);
+
+  return {
+    name: resolveFallbackValue(fallback.name),
+    tagline: resolveFallbackValue(fallback.tagline),
+    address: resolveFallbackValue(fallback.address),
+    phone: resolveFallbackValue(fallback.phone),
+    email: resolveFallbackValue(fallback.email),
+    booking_url: resolveFallbackValue(fallback.bookingUrl),
+    features,
+    services,
+    contacts: (fallback.contacts ?? []).map((item) => resolveFallbackValue(item)).filter(Boolean),
+    links: (fallback.links ?? []).map((item) => resolveFallbackValue(item)).filter(Boolean),
+  };
+});
+
+const studioContent = computed(() => mapStudioData(studioData.value ?? {}, fallbackStudioRaw.value));
 
 const heroSubtitle = computed(() => {
   const parts = [studioContent.value.tagline, studioContent.value.address, studioContent.value.phone]
