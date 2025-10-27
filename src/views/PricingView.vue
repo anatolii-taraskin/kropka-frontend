@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, inject, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
 import { usePricesStore, useStudioStore } from '@/stores';
@@ -8,7 +8,10 @@ const pricesStore = usePricesStore();
 const studioStore = useStudioStore();
 
 const { items, loading, error, meta } = storeToRefs(pricesStore);
-const { data: studioData, loading: studioLoading } = storeToRefs(studioStore);
+const { data: studioData } = storeToRefs(studioStore);
+
+const t = inject('t', (key) => key);
+const currentLocale = inject('currentLocale');
 
 const tariffs = computed(() =>
   items.value
@@ -22,7 +25,7 @@ const tariffs = computed(() =>
         .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
         .map((column) => column.value)
         .filter(Boolean) ?? [],
-    }))
+    })),
 );
 
 const hasData = computed(() => tariffs.value.length > 0);
@@ -37,31 +40,73 @@ const bookingUrl = computed(() => {
   return typeof url === 'string' ? url.trim() : '';
 });
 
+const apiLanguage = computed(() => currentLocale?.value?.apiLang ?? currentLocale?.value?.code ?? 'ru');
+const lastPricesLang = ref('');
+const lastStudioLang = ref('');
+
+const fetchPricesForLang = async (lang) => {
+  if (!lang) {
+    return;
+  }
+
+  if (lastPricesLang.value === lang && items.value.length) {
+    return;
+  }
+
+  try {
+    await pricesStore.fetchPrices({ lang });
+    lastPricesLang.value = lang;
+  } catch (fetchError) {
+    console.error('Failed to load price list from the API', fetchError);
+    if (!items.value.length) {
+      lastPricesLang.value = '';
+    }
+  }
+};
+
+const fetchStudioForLang = async (lang) => {
+  if (!lang) {
+    return;
+  }
+
+  if (lastStudioLang.value === lang && studioData.value) {
+    return;
+  }
+
+  try {
+    await studioStore.fetchStudio({ lang });
+    lastStudioLang.value = lang;
+  } catch (fetchError) {
+    console.error('Failed to fetch studio info for booking link', fetchError);
+    if (!studioData.value) {
+      lastStudioLang.value = '';
+    }
+  }
+};
+
+watch(
+  apiLanguage,
+  (lang) => {
+    fetchPricesForLang(lang);
+    fetchStudioForLang(lang);
+  },
+  { immediate: true },
+);
+
 const fetchPrices = async () => {
   try {
-    await pricesStore.fetchPrices();
+    await pricesStore.fetchPrices({ lang: apiLanguage.value });
+    lastPricesLang.value = apiLanguage.value;
   } catch (fetchError) {
     console.error('Failed to load price list from the API', fetchError);
   }
 };
-
-onMounted(() => {
-  if (!items.value.length && !loading.value) {
-    fetchPrices();
-  }
-
-  if (!studioData.value && !studioLoading.value) {
-    studioStore.fetchStudio().catch((fetchError) => {
-      console.error('Failed to fetch studio info for booking link', fetchError);
-    });
-  }
-});
 </script>
 
 <template>
   <section class="py-14 bg-brand-dark/50">
     <div class="mx-auto max-w-7xl px-4">
-      <h2 class="text-2xl font-bold mb-6">Прайс</h2>
+      <h2 class="text-2xl font-bold mb-6">{{ t('pricing.title') }}</h2>
 
       <div
         v-if="promotionMessage"
@@ -73,17 +118,19 @@ onMounted(() => {
         </div>
       </div>
 
-      <div v-if="loading" class="glass rounded-2xl p-6 text-center text-brand-muted">Загружаем актуальные цены...</div>
+      <div v-if="loading" class="glass rounded-2xl p-6 text-center text-brand-muted">
+        {{ t('pricing.loading') }}
+      </div>
 
       <div v-else-if="error" class="glass rounded-2xl p-6 text-center space-y-3">
-        <p class="text-brand-muted">Не удалось загрузить прайс. Попробуйте обновить страницу.</p>
+        <p class="text-brand-muted">{{ t('pricing.loadError') }}</p>
         <button class="px-4 py-2 rounded bg-brand-accent text-white" type="button" @click="fetchPrices">
-          Повторить запрос
+          {{ t('pricing.retry') }}
         </button>
       </div>
 
       <div v-else-if="!hasData" class="glass rounded-2xl p-6 text-center text-brand-muted">
-        Цены скоро появятся.
+        {{ t('pricing.empty') }}
       </div>
 
       <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -102,15 +149,15 @@ onMounted(() => {
             rel="noopener noreferrer"
             class="mt-4 inline-flex items-center justify-center px-4 py-2 rounded bg-brand-accent text-white self-start"
           >
-            Записаться
+            {{ t('pricing.bookCta') }}
           </a>
         </article>
       </div>
 
       <p class="mt-6 text-xs text-brand-muted">
-        Цены указаны в лари (₾).
+        {{ t('pricing.pricesNote') }}
         <template v-if="bookingUrl">
-          Актуальные слоты и бронирование — через
+          {{ ' ' + t('pricing.bookingNoteIntro') }}
           <a
             :href="bookingUrl"
             target="_blank"
@@ -118,11 +165,11 @@ onMounted(() => {
             class="inline-flex items-center gap-1 underline-offset-2 hover:text-brand-accent"
           >
             <span class="text-sm">👤</span>
-            <span>администратора в Telegram</span>
+            <span>{{ t('pricing.bookingNoteAdmin') }}</span>
           </a>.
         </template>
         <template v-else>
-          Актуальные слоты уточняйте у администратора.
+          {{ ' ' + t('pricing.bookingNoteFallback') }}
         </template>
       </p>
     </div>

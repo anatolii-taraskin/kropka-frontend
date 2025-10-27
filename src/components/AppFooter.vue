@@ -1,3 +1,9 @@
+<script setup>
+import { inject } from 'vue';
+
+const t = inject('t', (key) => key);
+</script>
+
 <template>
   <footer class="border-t border-white/10 mt-12">
     <div class="mx-auto max-w-7xl px-4 py-10 grid lg:grid-cols-3 gap-6 items-start">
@@ -9,7 +15,7 @@
             allowfullscreen
             referrerpolicy="no-referrer-when-downgrade"
             src="https://www.google.com/maps?q=Kropka+Music+Studio+Batumi&output=embed"
-            title="Kropka Music Studio на карте"
+            :title="t('footer.mapTitle')"
           ></iframe>
         </div>
       </div>
@@ -21,7 +27,7 @@
           rel="noopener noreferrer"
           class="text-brand-muted underline-offset-2 hover:text-brand-accent"
         >
-          Открыть в Google Maps
+          {{ t('footer.openInMaps') }}
         </a>
         <div>
           <a
@@ -30,7 +36,7 @@
             rel="noopener noreferrer"
             class="text-sm text-brand-muted underline-offset-2 hover:text-brand-accent"
           >
-            Проложить маршрут
+            {{ t('footer.getDirections') }}
           </a>
         </div>
       </div>

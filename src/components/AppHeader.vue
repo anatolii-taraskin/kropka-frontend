@@ -1,36 +1,64 @@
 <script setup>
-import { inject, ref } from 'vue';
+import { computed, inject, ref } from 'vue';
 
 const navigate = inject('navigate', () => {});
 const currentRouteName = inject('currentRouteName');
+const t = inject('t', (key) => key);
+const availableLocales = inject('availableLocales', []);
+const setLocale = inject('setLocale', () => {});
+const currentLocale = inject('currentLocale');
+const localizeRoute = inject('localizeRoute', () => '/');
 
 const mobileOpen = ref(false);
 
 const asset = (relativePath) => `${import.meta.env.BASE_URL}assets/${relativePath}`;
-
 const logoSrc = asset('icons/logo.png');
-const navLinks = [
-  { label: 'о нас', path: '/', name: 'about' },
-  { label: 'цены', path: '/pricing', name: 'pricing' },
-  { label: 'оборудование', path: '/equipment', name: 'equipment' },
-  { label: 'преподаватели', path: '/teachers', name: 'teachers' },
+
+const navConfig = [
+  { name: 'about', labelKey: 'navigation.about' },
+  { name: 'pricing', labelKey: 'navigation.pricing' },
+  { name: 'equipment', labelKey: 'navigation.equipment' },
+  { name: 'teachers', labelKey: 'navigation.teachers' },
 ];
+
+const activeRouteName = computed(() => currentRouteName?.value ?? 'about');
+
+const navLinks = computed(() =>
+  navConfig.map((link) => ({
+    ...link,
+    label: t(link.labelKey),
+    href: localizeRoute(link.name),
+  })),
+);
+
+const localeLinks = computed(() =>
+  availableLocales.map((locale) => ({
+    code: locale.code,
+    label: locale.label,
+    href: localizeRoute(activeRouteName.value, locale.code),
+    isActive: currentLocale?.value?.code === locale.code,
+  })),
+);
 
 const closeMenu = () => {
   mobileOpen.value = false;
 };
 
-const handleNavigate = (path) => {
-  navigate(path);
+const handleNavigate = (name) => {
+  navigate(name);
   closeMenu();
 };
 
+const handleLocaleChange = (code) => {
+  setLocale(code);
+  closeMenu();
+};
 </script>
 
 <template>
   <header class="sticky top-0 z-20 backdrop-blur backdrop-card shadow-lg">
     <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-3" @click.prevent="handleNavigate('/')">
+      <a :href="localizeRoute('about')" class="flex items-center gap-3" @click.prevent="handleNavigate('about')">
         <img
           :src="logoSrc"
           alt="Kropka Studio"
@@ -41,13 +69,23 @@ const handleNavigate = (path) => {
       <nav class="hidden md:flex items-center gap-6 text-sm">
         <div class="flex items-center gap-2 pr-3 mr-3 border-r border-white/10">
           <a
-            href="/ru"
-            hreflang="ru"
-            lang="ru"
-            class="inline-flex items-center justify-center w-7 h-7 rounded-full ring-2 ring-brand-accent"
-            aria-label="Русский"
+            v-for="locale in localeLinks"
+            :key="locale.code"
+            :href="locale.href"
+            :hreflang="locale.code"
+            :lang="locale.code"
+            :aria-label="locale.label"
+            class="inline-flex items-center justify-center w-7 h-7 rounded-full transition"
+            :class="locale.isActive ? 'ring-2 ring-brand-accent' : 'hover:ring-2 hover:ring-blue/30'"
+            @click.prevent="handleLocaleChange(locale.code)"
           >
-            <svg class="w-12 h-12" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <svg
+              v-if="locale.code === 'ru'"
+              class="w-12 h-12"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
               <circle cx="256" cy="256" fill="#f0f0f0" r="256" />
               <path
                 d="m496.077 345.043c10.291-27.733 15.923-57.729 15.923-89.043s-5.633-61.31-15.923-89.043h-480.154c-10.29 27.733-15.923 57.729-15.923 89.043s5.633 61.31 15.923 89.043l240.077 22.261z"
@@ -58,15 +96,13 @@ const handleNavigate = (path) => {
                 fill="#d80027"
               />
             </svg>
-          </a>
-          <a
-            href="/en"
-            hreflang="en"
-            lang="en"
-            class="inline-flex items-center justify-center w-7 h-7 rounded-full hover:ring-2 hover:ring-blue/30"
-            aria-label="English"
-          >
-            <svg class="w-12 h-12" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <svg
+              v-else-if="locale.code === 'en'"
+              class="w-12 h-12"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
               <circle cx="256" cy="256" fill="#f0f0f0" r="256" />
               <g fill="#d80027">
                 <path d="m244.87 256h267.13c0-23.106-3.08-45.49-8.819-66.783h-258.311z" />
@@ -79,15 +115,13 @@ const handleNavigate = (path) => {
                 fill="#0052b4"
               />
             </svg>
-          </a>
-          <a
-            href="/ka"
-            hreflang="ka"
-            lang="ka"
-            class="inline-flex items-center justify-center w-7 h-7 rounded-full hover:ring-2 hover:ring-blue/30"
-            aria-label="ქართული"
-          >
-            <svg class="w-12 h-12" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <svg
+              v-else
+              class="w-12 h-12"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
               <circle cx="256" cy="256" fill="#f0f0f0" r="256" />
               <g fill="#d80027">
                 <path
@@ -103,11 +137,11 @@ const handleNavigate = (path) => {
         </div>
         <a
           v-for="link in navLinks"
-          :key="link.path"
-          :href="link.path"
+          :key="link.name"
+          :href="link.href"
           class="hover:text-brand-accent"
-          :class="{ 'text-brand-accent': currentRouteName?.value === link.name }"
-          @click.prevent="handleNavigate(link.path)"
+          :class="{ 'text-brand-accent': activeRouteName === link.name }"
+          @click.prevent="handleNavigate(link.name)"
         >
           {{ link.label }}
         </a>
@@ -115,7 +149,7 @@ const handleNavigate = (path) => {
       <button
         class="md:hidden p-2 rounded hover:bg-white/5"
         @click="mobileOpen = !mobileOpen"
-        aria-label="Открыть меню"
+        :aria-label="t('header.openMenu')"
       >
         <div class="w-6 h-0.5 bg-current mb-1"></div>
         <div class="w-6 h-0.5 bg-current mb-1"></div>
@@ -124,13 +158,27 @@ const handleNavigate = (path) => {
     </div>
     <div v-if="mobileOpen" class="md:hidden border-t border-white/10">
       <div class="mx-auto max-w-7xl px-4 py-3 grid gap-2 text-sm">
+        <div class="flex items-center gap-2 pb-3 border-b border-white/10">
+          <a
+            v-for="locale in localeLinks"
+            :key="`mobile-${locale.code}`"
+            :href="locale.href"
+            :lang="locale.code"
+            :aria-label="locale.label"
+            class="inline-flex items-center justify-center w-8 h-8 rounded-full transition"
+            :class="locale.isActive ? 'ring-2 ring-brand-accent' : 'hover:ring-2 hover:ring-blue/30'"
+            @click.prevent="handleLocaleChange(locale.code)"
+          >
+            <span class="text-xs font-semibold uppercase">{{ locale.code }}</span>
+          </a>
+        </div>
         <a
           v-for="link in navLinks"
-          :key="link.path"
-          :href="link.path"
+          :key="`mobile-${link.name}`"
+          :href="link.href"
           class="py-2"
-          :class="{ 'text-brand-accent': currentRouteName?.value === link.name }"
-          @click.prevent="handleNavigate(link.path)"
+          :class="{ 'text-brand-accent': activeRouteName === link.name }"
+          @click.prevent="handleNavigate(link.name)"
         >
           {{ link.label }}
         </a>

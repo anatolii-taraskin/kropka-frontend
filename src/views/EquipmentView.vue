@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, inject, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
 import { useEquipmentStore } from '@/stores';
@@ -10,6 +10,9 @@ const fallbackImage = asset('main_page/main_img.png');
 const equipmentStore = useEquipmentStore();
 const { items, loading, error } = storeToRefs(equipmentStore);
 
+const t = inject('t', (key) => key);
+const currentLocale = inject('currentLocale');
+
 const equipment = computed(() =>
   items.value
     .slice()
@@ -19,42 +22,69 @@ const equipment = computed(() =>
       title: item.name,
       description: item.description,
       image: item.photo_url ?? '',
-    }))
+    })),
 );
 
 const hasData = computed(() => equipment.value.length > 0);
+const apiLanguage = computed(() => currentLocale?.value?.apiLang ?? currentLocale?.value?.code ?? 'ru');
+const lastEquipmentLang = ref('');
+
+const fetchEquipmentForLang = async (lang) => {
+  if (!lang) {
+    return;
+  }
+
+  if (lastEquipmentLang.value === lang && items.value.length) {
+    return;
+  }
+
+  try {
+    await equipmentStore.fetchEquipment({ lang });
+    lastEquipmentLang.value = lang;
+  } catch (fetchError) {
+    console.error('Failed to load equipment from the API', fetchError);
+    if (!items.value.length) {
+      lastEquipmentLang.value = '';
+    }
+  }
+};
+
+watch(
+  apiLanguage,
+  (lang) => {
+    fetchEquipmentForLang(lang);
+  },
+  { immediate: true },
+);
 
 const fetchEquipment = async () => {
   try {
-    await equipmentStore.fetchEquipment();
+    await equipmentStore.fetchEquipment({ lang: apiLanguage.value });
+    lastEquipmentLang.value = apiLanguage.value;
   } catch (fetchError) {
     console.error('Failed to load equipment from the API', fetchError);
   }
 };
-
-onMounted(() => {
-  if (!items.value.length && !loading.value) {
-    fetchEquipment();
-  }
-});
 </script>
 
 <template>
   <section class="py-14">
     <div class="mx-auto max-w-7xl px-4">
-      <h2 class="text-2xl font-bold mb-6">Оборудование</h2>
+      <h2 class="text-2xl font-bold mb-6">{{ t('equipment.title') }}</h2>
 
-      <div v-if="loading" class="glass rounded-2xl p-6 text-center text-brand-muted">Загружаем список...</div>
+      <div v-if="loading" class="glass rounded-2xl p-6 text-center text-brand-muted">
+        {{ t('equipment.loading') }}
+      </div>
 
       <div v-else-if="error" class="glass rounded-2xl p-6 text-center space-y-3">
-        <p class="text-brand-muted">Не удалось загрузить оборудование. Попробуйте обновить страницу.</p>
+        <p class="text-brand-muted">{{ t('equipment.loadError') }}</p>
         <button class="px-4 py-2 rounded bg-brand-accent text-white" type="button" @click="fetchEquipment">
-          Повторить запрос
+          {{ t('equipment.retry') }}
         </button>
       </div>
 
       <div v-else-if="!hasData" class="glass rounded-2xl p-6 text-center text-brand-muted">
-        Пока нет опубликованного оборудования.
+        {{ t('equipment.empty') }}
       </div>
 
       <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

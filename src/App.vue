@@ -8,50 +8,116 @@ import PricingView from '@/views/PricingView.vue';
 import EquipmentView from '@/views/EquipmentView.vue';
 import TeachersView from '@/views/TeachersView.vue';
 import ApiTestView from '@/views/ApiTestView.vue';
+import { DEFAULT_LOCALE_CODE, LOCALE_MAP, LOCALES, getLocale, translate } from '@/lib/i18n';
 
-const routes = {
-  '/': { path: '/', name: 'about', component: AboutView, title: 'О нас — Kropka Studio' },
-  '/pricing': { path: '/pricing', name: 'pricing', component: PricingView, title: 'Цены — Kropka Studio' },
-  '/equipment': {
-    path: '/equipment',
-    name: 'equipment',
-    component: EquipmentView,
-    title: 'Оборудование — Kropka Studio',
-  },
-  '/teachers': {
-    path: '/teachers',
-    name: 'teachers',
-    component: TeachersView,
-    title: 'Преподаватели — Kropka Studio',
-  },
-  '/api/test': { path: '/api/test', name: 'api-test', component: ApiTestView, title: 'API тесты — Kropka Studio' },
+const routeDefinitions = [
+  { name: 'about', segments: [], component: AboutView, titleKey: 'routes.about.title' },
+  { name: 'pricing', segments: ['pricing'], component: PricingView, titleKey: 'routes.pricing.title' },
+  { name: 'equipment', segments: ['equipment'], component: EquipmentView, titleKey: 'routes.equipment.title' },
+  { name: 'teachers', segments: ['teachers'], component: TeachersView, titleKey: 'routes.teachers.title' },
+  { name: 'api-test', segments: ['api', 'test'], component: ApiTestView, titleKey: 'routes.apiTest.title' },
+];
+
+const fallbackRoute = routeDefinitions[0];
+const routeByName = new Map(routeDefinitions.map((route) => [route.name, route]));
+const routeBySegments = new Map(routeDefinitions.map((route) => [route.segments.join('/'), route]));
+
+const normalizeSegments = (pathname) => {
+  const normalized = pathname.replace(/\/+/g, '/');
+  const trimmed = normalized !== '/' && normalized.endsWith('/') ? normalized.slice(0, -1) : normalized;
+  return trimmed.split('/').filter(Boolean);
 };
 
-const fallbackRoute = routes['/'] ?? Object.values(routes)[0];
-const resolveRoute = (path) => routes[path] ?? fallbackRoute;
+const buildPath = (localeCode, segments) => {
+  const locale = getLocale(localeCode);
+  const parts = [];
 
-const currentRoute = ref(resolveRoute(window.location.pathname));
-
-if (currentRoute.value.path !== window.location.pathname) {
-  window.history.replaceState({}, '', currentRoute.value.path);
-}
-
-const setRoute = (route) => {
-  if (route.path === currentRoute.value.path) {
-    return;
+  if (locale.pathSegment) {
+    parts.push(locale.pathSegment);
   }
 
+  if (Array.isArray(segments) && segments.length) {
+    parts.push(...segments);
+  }
+
+  return parts.length ? `/${parts.join('/')}` : '/';
+};
+
+const resolveLocation = (pathname) => {
+  const segments = normalizeSegments(pathname);
+  const normalizedPath = segments.length ? `/${segments.join('/')}` : '/';
+
+  let localeCode = DEFAULT_LOCALE_CODE;
+  let routeSegments = segments.slice();
+
+  if (segments.length) {
+    const [first] = segments;
+    const lower = first.toLowerCase();
+
+    if (lower === DEFAULT_LOCALE_CODE) {
+      routeSegments = segments.slice(1);
+    } else if (LOCALE_MAP[lower] && LOCALE_MAP[lower].code !== DEFAULT_LOCALE_CODE) {
+      localeCode = LOCALE_MAP[lower].code;
+      routeSegments = segments.slice(1);
+    }
+  }
+
+  const routeKey = routeSegments.join('/');
+  const route = routeBySegments.get(routeKey) ?? fallbackRoute;
+  const canonicalPath = buildPath(localeCode, route.segments);
+  const needsRedirect = canonicalPath !== normalizedPath;
+
+  return { localeCode, route, canonicalPath, needsRedirect };
+};
+
+const initialState = resolveLocation(window.location.pathname);
+
+const currentLocaleCode = ref(initialState.localeCode);
+const currentRoute = ref(initialState.route);
+
+const syncUrlWithState = ({ replace = false } = {}) => {
+  const targetPath = buildPath(currentLocaleCode.value, currentRoute.value.segments);
+
+  if (targetPath !== window.location.pathname) {
+    const method = replace ? 'replaceState' : 'pushState';
+    window.history[method]({}, '', targetPath);
+  }
+};
+
+if (initialState.needsRedirect) {
+  window.history.replaceState({}, '', initialState.canonicalPath);
+}
+
+const navigate = (targetName) => {
+  const route = routeByName.get(targetName) ?? fallbackRoute;
   currentRoute.value = route;
-  window.history.pushState({}, '', route.path);
+  syncUrlWithState();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-const navigate = (path) => {
-  setRoute(resolveRoute(path));
+const setLocale = (code) => {
+  const locale = LOCALE_MAP[code];
+  if (!locale) {
+    return;
+  }
+
+  if (currentLocaleCode.value === locale.code) {
+    return;
+  }
+
+  currentLocaleCode.value = locale.code;
+  syncUrlWithState();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 const handlePopState = () => {
-  currentRoute.value = resolveRoute(window.location.pathname);
+  const nextState = resolveLocation(window.location.pathname);
+  currentLocaleCode.value = nextState.localeCode;
+  currentRoute.value = nextState.route;
+
+  if (nextState.needsRedirect) {
+    syncUrlWithState({ replace: true });
+  }
 };
 
 onMounted(() => {
@@ -62,17 +128,29 @@ onBeforeUnmount(() => {
   window.removeEventListener('popstate', handlePopState);
 });
 
-watchEffect(() => {
-  if (currentRoute.value?.title) {
-    document.title = currentRoute.value.title;
-  }
-});
-
+const currentLocale = computed(() => getLocale(currentLocaleCode.value));
 const currentComponent = computed(() => currentRoute.value.component);
 const currentRouteName = computed(() => currentRoute.value.name);
 
+const translateCurrent = (key, values) => translate(currentLocaleCode.value, key, values);
+const localizeRoute = (name, localeCode = currentLocaleCode.value) => {
+  const route = routeByName.get(name) ?? fallbackRoute;
+  return buildPath(localeCode, route.segments);
+};
+
+watchEffect(() => {
+  document.title = translateCurrent(currentRoute.value.titleKey);
+  document.documentElement.setAttribute('lang', currentLocale.value.code);
+  document.documentElement.setAttribute('dir', 'ltr');
+});
+
 provide('navigate', navigate);
 provide('currentRouteName', currentRouteName);
+provide('currentLocale', currentLocale);
+provide('availableLocales', LOCALES);
+provide('setLocale', setLocale);
+provide('t', translateCurrent);
+provide('localizeRoute', localizeRoute);
 </script>
 
 <template>
