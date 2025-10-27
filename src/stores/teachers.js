@@ -1,10 +1,7 @@
 import { defineStore } from 'pinia';
-import { apiClient, withLangParam } from '@/lib/api-client';
-import { toApiError } from '@/lib/api-error';
-import { readCache, writeCache } from '@/lib/storage';
+import { loadCachedResource } from './cached-resource';
 
 const CACHE_KEY = 'teachers:data';
-const buildCacheKey = (lang) => (lang ? `${CACHE_KEY}:${lang}` : CACHE_KEY);
 
 export const useTeachersStore = defineStore('teachers', {
   state: () => ({
@@ -19,42 +16,27 @@ export const useTeachersStore = defineStore('teachers', {
       this.loading = true;
       this.error = null;
 
-      const cacheKey = buildCacheKey(lang);
-
-      const updateState = ({ items = [], meta = null, lastFetchedAt = null } = {}) => {
-        this.items = Array.isArray(items) ? items : [];
-        this.meta = meta ?? null;
-        this.lastFetchedAt = lastFetchedAt ?? null;
-      };
-
       try {
-        const { data } = await apiClient.get('/api/v1/teachers', {
-          params: withLangParam(lang),
+        const payload = await loadCachedResource({
+          endpoint: '/api/v1/teachers',
+          cacheKeyBase: CACHE_KEY,
+          lang,
+          logLabel: 'teachers',
+          transformResponse: (response) => ({
+            items: Array.isArray(response?.data) ? response.data : [],
+            meta: response?.meta ?? null,
+          }),
         });
 
-        const payload = {
-          items: Array.isArray(data.data) ? data.data : [],
-          meta: data.meta ?? null,
-          lastFetchedAt: new Date().toISOString(),
-        };
+        this.items = Array.isArray(payload.items) ? payload.items : [];
+        this.meta = payload.meta ?? null;
+        this.lastFetchedAt = payload.lastFetchedAt ?? null;
+        this.error = null;
 
-        updateState(payload);
-        writeCache(cacheKey, payload);
-
-        return data;
+        return payload;
       } catch (error) {
-        const apiError = toApiError(error);
-        const cached = readCache(cacheKey);
-
-        if (cached) {
-          console.warn('Failed to load teachers from the API, using cached value', apiError);
-          updateState(cached);
-          this.error = null;
-          return { data: this.items, meta: this.meta, fromCache: true };
-        }
-
-        this.error = apiError;
-        throw apiError;
+        this.error = error;
+        throw error;
       } finally {
         this.loading = false;
       }

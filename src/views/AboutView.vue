@@ -3,6 +3,7 @@ import { computed, inject, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
 import CopyButton from '@/components/CopyButton.vue';
+import { assetUrl } from '@/lib/assets';
 import { useRulesStore, useStudioStore } from '@/stores';
 
 const navigate = inject('navigate', () => {});
@@ -10,8 +11,7 @@ const t = inject('t', (key) => key);
 const currentLocale = inject('currentLocale');
 const localizeRoute = inject('localizeRoute', () => '/');
 
-const asset = (relativePath) => `${import.meta.env.BASE_URL}assets/${relativePath}`;
-const heroImageUrl = asset('main_page/main_img.png');
+const heroImageUrl = assetUrl('main_page/main_img.png');
 
 const studioStore = useStudioStore();
 const rulesStore = useRulesStore();
