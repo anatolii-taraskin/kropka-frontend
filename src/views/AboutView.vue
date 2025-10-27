@@ -153,8 +153,9 @@ const buildContacts = (source = {}, normalizedPhone = '') => {
 
     const label = toStringValue(contact?.label) || '•';
     const href = toStringValue(contact?.href);
+    const scrollToId = toStringValue(contact?.scrollToId);
 
-    const key = `${label}-${content}-${href}`;
+    const key = `${label}-${content}-${href}-${scrollToId}`;
     if (seen.has(key)) {
       return;
     }
@@ -166,6 +167,7 @@ const buildContacts = (source = {}, normalizedPhone = '') => {
       href: href || undefined,
       isCopy: Boolean(contact?.isCopy),
       value: contact?.value ?? undefined,
+      scrollToId: scrollToId || undefined,
     });
   };
 
@@ -193,6 +195,7 @@ const buildContacts = (source = {}, normalizedPhone = '') => {
     pushContact({
       label: '📍',
       content: address,
+      scrollToId: 'map',
     });
   }
 
@@ -286,6 +289,9 @@ const heroSubtitle = computed(() => {
   return parts.join(' · ');
 });
 
+const scheduleUrl =
+  'https://calendar.google.com/calendar/u/0/embed?src=7qh5sinn2kdu1osa4r45icihck@group.calendar.google.com&ctz=Asia/Tbilisi&pli=1';
+
 const rulesList = computed(() =>
   rulesItems.value
     .slice()
@@ -312,6 +318,14 @@ const scrollToSection = (id) => {
   if (target) {
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+};
+
+const openScheduleAndInfo = () => {
+  if (typeof window !== 'undefined') {
+    window.open(scheduleUrl, '_blank', 'noopener,noreferrer');
+  }
+
+  scrollToSection('info');
 };
 
 const fetchStudio = async () => {
@@ -359,7 +373,7 @@ onMounted(() => {
             <a
               href="#info"
               class="px-5 py-3 rounded border border-white/15 hover:bg-white/5"
-              @click.prevent="scrollToSection('info')"
+              @click.prevent="openScheduleAndInfo"
             >
               Расписание и инфо
             </a>
@@ -426,6 +440,15 @@ onMounted(() => {
                   <a :href="item.href" class="hover:text-brand-accent" target="_blank" rel="noopener">
                     {{ item.content }}
                   </a>
+                </template>
+                <template v-else-if="item.scrollToId">
+                  <button
+                    type="button"
+                    class="hover:text-brand-accent underline-offset-2 text-left"
+                    @click="scrollToSection(item.scrollToId)"
+                  >
+                    {{ item.content }}
+                  </button>
                 </template>
                 <template v-else>
                   <span>{{ item.content }}</span>
