@@ -2,6 +2,7 @@
 import { computed, inject, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
+import { useApiLanguage } from '@/lib/use-api-language';
 import { usePricesStore, useStudioStore } from '@/stores';
 
 const pricesStore = usePricesStore();
@@ -11,7 +12,7 @@ const { items, loading, error, meta } = storeToRefs(pricesStore);
 const { data: studioData } = storeToRefs(studioStore);
 
 const t = inject('t', (key) => key);
-const currentLocale = inject('currentLocale');
+const apiLanguage = useApiLanguage();
 
 const tariffs = computed(() =>
   items.value
@@ -40,7 +41,6 @@ const bookingUrl = computed(() => {
   return typeof url === 'string' ? url.trim() : '';
 });
 
-const apiLanguage = computed(() => currentLocale?.value?.apiLang ?? currentLocale?.value?.code ?? 'ru');
 const lastPricesLang = ref('');
 const lastStudioLang = ref('');
 

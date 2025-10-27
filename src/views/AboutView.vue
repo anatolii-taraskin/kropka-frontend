@@ -4,6 +4,8 @@ import { storeToRefs } from 'pinia';
 
 import CopyButton from '@/components/CopyButton.vue';
 import { assetUrl } from '@/lib/assets';
+import { staticContent } from '@/lib/static-content';
+import { useApiLanguage } from '@/lib/use-api-language';
 import { useRulesStore, useStudioStore } from '@/stores';
 
 const navigate = inject('navigate', () => {});
@@ -11,7 +13,7 @@ const t = inject('t', (key) => key);
 const currentLocale = inject('currentLocale');
 const localizeRoute = inject('localizeRoute', () => '/');
 
-const heroImageUrl = assetUrl('main_page/main_img.png');
+const heroImageUrl = assetUrl(staticContent.about.heroImage);
 
 const studioStore = useStudioStore();
 const rulesStore = useRulesStore();
@@ -296,8 +298,7 @@ const heroSubtitle = computed(() => {
   return parts.join(' · ');
 });
 
-const scheduleUrl =
-  'https://calendar.google.com/calendar/u/0/embed?src=7qh5sinn2kdu1osa4r45icihck@group.calendar.google.com&ctz=Asia/Tbilisi&pli=1';
+const scheduleUrl = staticContent.about.scheduleUrl;
 
 const rulesList = computed(() =>
   rulesItems.value
@@ -316,7 +317,7 @@ const errorMessage = computed(() => studioError.value?.message ?? rulesError.val
 
 const isLoading = computed(() => studioLoading.value || rulesLoading.value);
 
-const apiLanguage = computed(() => currentLocale?.value?.apiLang ?? currentLocale?.value?.code ?? 'ru');
+const apiLanguage = useApiLanguage();
 const lastStudioLang = ref('');
 const lastRulesLang = ref('');
 

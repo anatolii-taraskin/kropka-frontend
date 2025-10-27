@@ -2,13 +2,14 @@
 import { computed, inject, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
+import { useApiLanguage } from '@/lib/use-api-language';
 import { useTeachersStore } from '@/stores';
 
 const teachersStore = useTeachersStore();
 const { items, loading, error } = storeToRefs(teachersStore);
 
 const t = inject('t', (key) => key);
-const currentLocale = inject('currentLocale');
+const apiLanguage = useApiLanguage();
 
 const teachers = computed(() =>
   items.value
@@ -49,7 +50,6 @@ const teachers = computed(() =>
 );
 
 const hasData = computed(() => teachers.value.length > 0);
-const apiLanguage = computed(() => currentLocale?.value?.apiLang ?? currentLocale?.value?.code ?? 'ru');
 const lastTeachersLang = ref('');
 
 const fetchTeachersForLang = async (lang) => {

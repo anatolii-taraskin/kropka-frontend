@@ -2,25 +2,12 @@
 import { computed, inject, ref } from 'vue';
 
 import { apiClient, withLangParam } from '@/lib/api-client';
+import { staticContent } from '@/lib/static-content';
 
 const t = inject('t', (key) => key);
 const currentLocale = inject('currentLocale');
 
-const endpointDefs = [
-  { path: '/api/v1/studio', labelKey: 'apiTest.endpoints.studio.label', descriptionKey: 'apiTest.endpoints.studio.description' },
-  { path: '/api/v1/prices', labelKey: 'apiTest.endpoints.prices.label', descriptionKey: 'apiTest.endpoints.prices.description' },
-  {
-    path: '/api/v1/equipment',
-    labelKey: 'apiTest.endpoints.equipment.label',
-    descriptionKey: 'apiTest.endpoints.equipment.description',
-  },
-  {
-    path: '/api/v1/teachers',
-    labelKey: 'apiTest.endpoints.teachers.label',
-    descriptionKey: 'apiTest.endpoints.teachers.description',
-  },
-  { path: '/api/v1/rules', labelKey: 'apiTest.endpoints.rules.label', descriptionKey: 'apiTest.endpoints.rules.description' },
-];
+const endpointDefs = staticContent.apiTest.endpoints;
 
 const endpoints = computed(() =>
   endpointDefs.map((endpoint) => ({

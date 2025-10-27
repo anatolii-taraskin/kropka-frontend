@@ -1,7 +1,25 @@
 <script setup>
-import { inject } from 'vue';
+import { computed, inject } from 'vue';
+
+import { staticContent } from '@/lib/static-content';
 
 const t = inject('t', (key) => key);
+const currentLocale = inject('currentLocale');
+
+const footerContent = staticContent.main.footer ?? {
+  brandName: {},
+  copyright: {},
+  map: {},
+};
+const mapConfig = footerContent.map ?? {};
+
+const localeCode = computed(() => currentLocale?.value?.code ?? 'ru');
+const brandName = computed(
+  () => footerContent.brandName[localeCode.value] ?? footerContent.brandName.ru,
+);
+const copyright = computed(
+  () => footerContent.copyright[localeCode.value] ?? footerContent.copyright.ru,
+);
 </script>
 
 <template>
@@ -14,15 +32,15 @@ const t = inject('t', (key) => key);
             loading="lazy"
             allowfullscreen
             referrerpolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps?q=Kropka+Music+Studio+Batumi&output=embed"
+            :src="mapConfig.embedUrl"
             :title="t('footer.mapTitle')"
           ></iframe>
         </div>
       </div>
       <div class="space-y-2">
-        <div class="text-sm font-semibold">Kropka Music Studio</div>
+        <div class="text-sm font-semibold">{{ brandName }}</div>
         <a
-          href="https://www.google.com/maps/search/?api=1&query=Kropka+Music+Studio,+Batumi,+Georgia"
+          :href="mapConfig.searchUrl"
           target="_blank"
           rel="noopener noreferrer"
           class="text-brand-muted underline-offset-2 hover:text-brand-accent"
@@ -31,7 +49,7 @@ const t = inject('t', (key) => key);
         </a>
         <div>
           <a
-            href="https://www.google.com/maps/dir/?api=1&destination=Kropka+Music+Studio,+Batumi,+Georgia"
+            :href="mapConfig.directionsUrl"
             target="_blank"
             rel="noopener noreferrer"
             class="text-sm text-brand-muted underline-offset-2 hover:text-brand-accent"
@@ -42,7 +60,7 @@ const t = inject('t', (key) => key);
       </div>
     </div>
     <div class="mx-auto max-w-7xl px-4 pb-8 text-sm text-brand-muted">
-      © Kropka Studio, Batumi
+      {{ copyright }}
     </div>
   </footer>
 </template>
