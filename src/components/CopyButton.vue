@@ -1,5 +1,17 @@
 <script setup>
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { computed, inject, onBeforeUnmount, ref } from 'vue';
+
+const t = inject('t', (key, values) => {
+  if (key === 'copyButton.copied') {
+    return `Copied: ${values?.value ?? ''}`;
+  }
+
+  if (key === 'copyButton.failed') {
+    return 'Copy failed';
+  }
+
+  return key;
+});
 
 const props = defineProps({
   value: {
@@ -42,10 +54,10 @@ const showToast = (message) => {
 const copy = async () => {
   try {
     await navigator.clipboard.writeText(props.value);
-    showToast(`Скопировано: ${formattedValue.value}`);
+    showToast(t('copyButton.copied', { value: formattedValue.value }));
   } catch (error) {
     console.error(error);
-    showToast('Не удалось скопировать');
+    showToast(t('copyButton.failed'));
   }
 };
 

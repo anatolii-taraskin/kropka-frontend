@@ -1,11 +1,14 @@
 <script setup>
-import { computed, inject, onMounted } from 'vue';
+import { computed, inject, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
 import CopyButton from '@/components/CopyButton.vue';
 import { useRulesStore, useStudioStore } from '@/stores';
 
 const navigate = inject('navigate', () => {});
+const t = inject('t', (key) => key);
+const currentLocale = inject('currentLocale');
+const localizeRoute = inject('localizeRoute', () => '/');
 
 const asset = (relativePath) => `${import.meta.env.BASE_URL}assets/${relativePath}`;
 const heroImageUrl = asset('main_page/main_img.png');
@@ -208,16 +211,20 @@ const buildContacts = (source = {}, normalizedPhone = '') => {
 
 const buildLinks = (source = {}) => {
   const known = [
-    source.instagram_url ? { label: '📸 Instagram', href: toStringValue(source.instagram_url) } : null,
-    source.facebook_url ? { label: '📘 Facebook', href: toStringValue(source.facebook_url) } : null,
+    source.instagram_url
+      ? { label: t('about.links.instagram'), href: toStringValue(source.instagram_url) }
+      : null,
+    source.facebook_url
+      ? { label: t('about.links.facebook'), href: toStringValue(source.facebook_url) }
+      : null,
     source.telegram_channel_url
-      ? { label: '💬 Telegram-канал', href: toStringValue(source.telegram_channel_url) }
+      ? { label: t('about.links.telegramChannel'), href: toStringValue(source.telegram_channel_url) }
       : null,
-    source.telegram_url ? { label: '💬 Telegram', href: toStringValue(source.telegram_url) } : null,
+    source.telegram_url ? { label: t('about.links.telegram'), href: toStringValue(source.telegram_url) } : null,
     source.telegram_admin_url
-      ? { label: '👤 Администратор в TG', href: toStringValue(source.telegram_admin_url) }
+      ? { label: t('about.links.telegramAdmin'), href: toStringValue(source.telegram_admin_url) }
       : null,
-    source.website_url ? { label: '🌐 Сайт', href: toStringValue(source.website_url) } : null,
+    source.website_url ? { label: t('about.links.website'), href: toStringValue(source.website_url) } : null,
   ];
 
   const additional = toList(source.links).map((entry) => {
@@ -300,7 +307,7 @@ const rulesList = computed(() =>
       id: rule.id,
       text: rule.text,
       copy: rule.property?.includes('phone') ? studioContent.value.normalizedPhone : null,
-    }))
+    })),
 );
 
 const hasRules = computed(() => rulesList.value.length > 0);
@@ -309,8 +316,61 @@ const errorMessage = computed(() => studioError.value?.message ?? rulesError.val
 
 const isLoading = computed(() => studioLoading.value || rulesLoading.value);
 
-const handleNavigate = (path) => {
-  navigate(path);
+const apiLanguage = computed(() => currentLocale?.value?.apiLang ?? currentLocale?.value?.code ?? 'ru');
+const lastStudioLang = ref('');
+const lastRulesLang = ref('');
+
+const fetchStudioForLang = async (lang) => {
+  if (!lang) {
+    return;
+  }
+
+  if (lastStudioLang.value === lang && studioData.value) {
+    return;
+  }
+
+  try {
+    await studioStore.fetchStudio({ lang });
+    lastStudioLang.value = lang;
+  } catch (fetchError) {
+    console.error('Failed to load studio info from the API', fetchError);
+    if (!studioData.value) {
+      lastStudioLang.value = '';
+    }
+  }
+};
+
+const fetchRulesForLang = async (lang) => {
+  if (!lang) {
+    return;
+  }
+
+  if (lastRulesLang.value === lang && rulesItems.value.length) {
+    return;
+  }
+
+  try {
+    await rulesStore.fetchRules({ lang });
+    lastRulesLang.value = lang;
+  } catch (fetchError) {
+    console.error('Failed to load studio rules from the API', fetchError);
+    if (!rulesItems.value.length) {
+      lastRulesLang.value = '';
+    }
+  }
+};
+
+watch(
+  apiLanguage,
+  (lang) => {
+    fetchStudioForLang(lang);
+    fetchRulesForLang(lang);
+  },
+  { immediate: true },
+);
+
+const handleNavigate = (name) => {
+  navigate(name);
 };
 
 const scrollToSection = (id) => {
@@ -327,32 +387,6 @@ const openScheduleAndInfo = () => {
 
   scrollToSection('info');
 };
-
-const fetchStudio = async () => {
-  try {
-    await studioStore.fetchStudio();
-  } catch (fetchError) {
-    console.error('Failed to load studio info from the API', fetchError);
-  }
-};
-
-const fetchRules = async () => {
-  try {
-    await rulesStore.fetchRules();
-  } catch (fetchError) {
-    console.error('Failed to load studio rules from the API', fetchError);
-  }
-};
-
-onMounted(() => {
-  if (!studioData.value && !studioLoading.value) {
-    fetchStudio();
-  }
-
-  if (!rulesItems.value.length && !rulesLoading.value) {
-    fetchRules();
-  }
-});
 </script>
 
 <template>
@@ -364,18 +398,18 @@ onMounted(() => {
           <p v-if="heroSubtitle" class="mt-4 text-brand-muted">{{ heroSubtitle }}</p>
           <div class="mt-6 flex flex-wrap gap-3">
             <a
-              href="/pricing"
+              :href="localizeRoute('pricing')"
               class="px-5 py-3 rounded bg-brand-accent text-white"
-              @click.prevent="handleNavigate('/pricing')"
+              @click.prevent="handleNavigate('pricing')"
             >
-              Прайс
+              {{ t('about.hero.pricingCta') }}
             </a>
             <a
               href="#info"
               class="px-5 py-3 rounded border border-white/15 hover:bg-white/5"
               @click.prevent="openScheduleAndInfo"
             >
-              Расписание и инфо
+              {{ t('about.hero.scheduleCta') }}
             </a>
           </div>
         </div>
@@ -395,14 +429,14 @@ onMounted(() => {
     <section id="info" class="mx-auto max-w-7xl px-4">
       <div class="grid lg:grid-cols-2 gap-8 items-start">
         <div>
-          <h2 class="text-2xl font-bold mb-4">О нас</h2>
+          <h2 class="text-2xl font-bold mb-4">{{ t('about.title') }}</h2>
           <div v-if="studioContent.features.length" class="text-brand-muted space-y-3">
             <div v-for="feature in studioContent.features" :key="feature.text" class="flex items-start gap-2">
               <span class="text-lg">{{ feature.icon }}</span>
               <span>{{ feature.text }}</span>
             </div>
           </div>
-          <p v-else-if="!studioLoading" class="text-sm text-brand-muted">Информация о студии появится позже.</p>
+          <p v-else-if="!studioLoading" class="text-sm text-brand-muted">{{ t('about.noInfo') }}</p>
           <ul v-if="studioContent.services.length" class="mt-5 space-y-2 text-sm text-brand-muted list-disc list-inside">
             <li v-for="service in studioContent.services" :key="service">{{ service }}</li>
           </ul>
@@ -414,20 +448,20 @@ onMounted(() => {
               rel="noopener noreferrer"
               class="px-5 py-3 rounded bg-brand-accent text-white"
             >
-              Записаться в Telegram
+              {{ t('about.bookingCta') }}
             </a>
             <CopyButton
               v-if="studioContent.phone"
               :value="studioContent.normalizedPhone || studioContent.phone"
               class="px-5 py-3 rounded border border-white/15 hover:bg-white/5"
             >
-              Скопировать телефон: {{ studioContent.phone }}
+              {{ t('about.copyPhone', { phone: studioContent.phone }) }}
             </CopyButton>
           </div>
         </div>
         <div class="grid gap-6">
           <div class="mt-6 glass rounded-2xl p-6">
-            <div class="font-semibold mb-3">Контакты</div>
+            <div class="font-semibold mb-3">{{ t('about.contactsTitle') }}</div>
             <ul v-if="studioContent.contacts.length" class="text-sm text-brand-muted space-y-2">
               <li v-for="item in studioContent.contacts" :key="`${item.label}-${item.content}`" class="flex items-start gap-2">
                 <span>{{ item.label }}</span>
@@ -455,10 +489,10 @@ onMounted(() => {
                 </template>
               </li>
             </ul>
-            <p v-else-if="!studioLoading" class="text-sm text-brand-muted">Контакты уточняются.</p>
+            <p v-else-if="!studioLoading" class="text-sm text-brand-muted">{{ t('about.contactsEmpty') }}</p>
           </div>
           <div class="glass rounded-2xl p-6">
-            <div class="font-semibold mb-3">Ссылки</div>
+            <div class="font-semibold mb-3">{{ t('about.linksTitle') }}</div>
             <ul v-if="studioContent.links.length" class="text-sm text-brand-muted space-y-2">
               <li v-for="link in studioContent.links" :key="link.href">
                 <a :href="link.href" target="_blank" rel="noopener noreferrer" class="hover:text-brand-accent">
@@ -466,13 +500,13 @@ onMounted(() => {
                 </a>
               </li>
             </ul>
-            <p v-else-if="!studioLoading" class="text-sm text-brand-muted">Ссылки появятся позже.</p>
+            <p v-else-if="!studioLoading" class="text-sm text-brand-muted">{{ t('about.linksEmpty') }}</p>
           </div>
         </div>
       </div>
       <div class="glass rounded-2xl p-6 mt-10">
-        <div class="font-semibold mb-3">Правила студии</div>
-        <div v-if="isLoading" class="text-sm text-brand-muted">Загружаем правила студии...</div>
+        <div class="font-semibold mb-3">{{ t('about.rulesTitle') }}</div>
+        <div v-if="isLoading" class="text-sm text-brand-muted">{{ t('about.rulesLoading') }}</div>
         <template v-else>
           <ul v-if="hasRules" class="text-sm text-brand-muted space-y-2 list-disc pl-5">
             <li v-for="rule in rulesList" :key="rule.id ?? rule.text" class="space-y-1">
@@ -486,7 +520,7 @@ onMounted(() => {
               </CopyButton>
             </li>
           </ul>
-          <p v-else class="text-sm text-brand-muted">Правила пока не опубликованы.</p>
+          <p v-else class="text-sm text-brand-muted">{{ t('about.rulesEmpty') }}</p>
         </template>
         <div v-if="errorMessage" class="mt-4 text-sm text-red-300">{{ errorMessage }}</div>
       </div>
