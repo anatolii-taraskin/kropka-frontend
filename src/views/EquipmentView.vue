@@ -2,10 +2,10 @@
 import { computed, inject, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
+import { assetUrl } from '@/lib/assets';
 import { useEquipmentStore } from '@/stores';
 
-const asset = (relativePath) => `${import.meta.env.BASE_URL}assets/${relativePath}`;
-const fallbackImage = asset('main_page/main_img.png');
+const fallbackImage = assetUrl('main_page/main_img.png');
 
 const equipmentStore = useEquipmentStore();
 const { items, loading, error } = storeToRefs(equipmentStore);

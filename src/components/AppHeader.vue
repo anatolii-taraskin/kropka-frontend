@@ -1,6 +1,8 @@
 <script setup>
 import { computed, inject, ref } from 'vue';
 
+import { assetUrl } from '@/lib/assets';
+
 const navigate = inject('navigate', () => {});
 const currentRouteName = inject('currentRouteName');
 const t = inject('t', (key) => key);
@@ -11,8 +13,7 @@ const localizeRoute = inject('localizeRoute', () => '/');
 
 const mobileOpen = ref(false);
 
-const asset = (relativePath) => `${import.meta.env.BASE_URL}assets/${relativePath}`;
-const logoSrc = asset('icons/logo.png');
+const logoSrc = assetUrl('icons/logo.png');
 
 const navConfig = [
   { name: 'about', labelKey: 'navigation.about' },
