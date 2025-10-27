@@ -7,12 +7,14 @@ import AboutView from '@/views/AboutView.vue';
 import PricingView from '@/views/PricingView.vue';
 import EquipmentView from '@/views/EquipmentView.vue';
 import TeachersView from '@/views/TeachersView.vue';
+import ApiTestView from '@/views/ApiTestView.vue';
 
 const routeConfig = {
   '/': { name: 'about', component: AboutView, title: 'О нас — Kropka Studio' },
   '/pricing': { name: 'pricing', component: PricingView, title: 'Цены — Kropka Studio' },
   '/equipment': { name: 'equipment', component: EquipmentView, title: 'Оборудование — Kropka Studio' },
   '/teachers': { name: 'teachers', component: TeachersView, title: 'Преподаватели — Kropka Studio' },
+  '/api/test': { name: 'api-test', component: ApiTestView, title: 'API тесты — Kropka Studio' },
 };
 
 const fallbackPath = '/';

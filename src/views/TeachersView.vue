@@ -1,52 +1,105 @@
 <script setup>
-const asset = (relativePath) => `${import.meta.env.BASE_URL}assets/${relativePath}`;
+import { computed, onMounted } from 'vue';
+import { storeToRefs } from 'pinia';
 
-const teachers = [
-  {
-    name: 'Антон',
-    description:
-      'Индивидуальные занятия на настоящих живых барабанах 🥁 Урок 60 минут стоит 65 лари. Все ритмы играются под музыку и сопровождаются бас-гитарой. Занятия проходят на двух барабанных установках и укомплектованы фирменными тарелками, а так же двойной педалью💥 Пробное занятие стоит 50 лари 🔥 Для взрослых и детей с 8 лет. Так же в наличии имеются Подарочные Сертификаты на 1 и на 2 занятия - подари классное увлечение длиною в жизнь!',
-    image: asset('teachers/anton-900x600.png'),
-    alt: 'Антон — преподаватель ударных',
-    links: [
-      {
-        label: 'Написать в TG',
-        href: 'https://t.me/tonydrumcoach',
-        icon: '💬',
-        primary: true,
-      },
-      {
-        label: 'Наш канал',
-        href: 'https://t.me/kropka_batumi',
-        icon: '📣',
-      },
-    ],
-  },
-];
+import { useTeachersStore } from '@/stores';
+
+const teachersStore = useTeachersStore();
+const { items, loading, error } = storeToRefs(teachersStore);
+
+const teachers = computed(() =>
+  items.value
+    .slice()
+    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+    .map((item) => {
+      const links = [];
+
+      if (item.telegram_url) {
+        links.push({
+          label: 'Написать в TG',
+          href: item.telegram_url,
+          icon: '💬',
+          primary: true,
+        });
+      }
+
+      if (item.instagram_url) {
+        links.push({ label: 'Instagram', href: item.instagram_url, icon: '📸' });
+      }
+
+      if (item.facebook_url) {
+        links.push({ label: 'Facebook', href: item.facebook_url, icon: '📘' });
+      }
+
+      if (item.website_url) {
+        links.push({ label: 'Сайт', href: item.website_url, icon: '🌐' });
+      }
+
+      return {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        image: item.photo_url ?? '',
+        links,
+      };
+    })
+);
+
+const hasData = computed(() => teachers.value.length > 0);
+
+const fetchTeachers = async () => {
+  try {
+    await teachersStore.fetchTeachers();
+  } catch (fetchError) {
+    console.error('Failed to load teachers from the API', fetchError);
+  }
+};
+
+onMounted(() => {
+  if (!items.value.length && !loading.value) {
+    fetchTeachers();
+  }
+});
 </script>
 
 <template>
   <section class="py-14 bg-brand-dark/50">
     <div class="mx-auto max-w-7xl px-4">
       <h2 class="text-2xl font-bold mb-6">Преподаватели</h2>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <article v-for="teacher in teachers" :key="teacher.name" class="glass rounded-2xl p-4">
+
+      <div v-if="loading" class="glass rounded-2xl p-6 text-center text-brand-muted">Загружаем преподавателей...</div>
+
+      <div v-else-if="error" class="glass rounded-2xl p-6 text-center space-y-3">
+        <p class="text-brand-muted">Не удалось получить список преподавателей. Попробуйте снова.</p>
+        <button class="px-4 py-2 rounded bg-brand-accent text-white" type="button" @click="fetchTeachers">
+          Повторить запрос
+        </button>
+      </div>
+
+      <div v-else-if="!hasData" class="glass rounded-2xl p-6 text-center text-brand-muted">
+        Пока нет активных преподавателей.
+      </div>
+
+      <div v-else class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <article v-for="teacher in teachers" :key="teacher.id ?? teacher.name" class="glass rounded-2xl p-4">
           <div class="rounded-xl overflow-hidden">
             <img
+              v-if="teacher.image"
               :src="teacher.image"
-              :alt="teacher.alt"
+              :alt="teacher.name"
               width="900"
               height="600"
               loading="lazy"
               decoding="async"
               class="w-full aspect-[3/2] object-cover"
             />
+            <div v-else class="w-full aspect-[3/2] flex items-center justify-center bg-white/5 text-5xl">🎵</div>
           </div>
           <h3 class="mt-3 font-semibold">{{ teacher.name }}</h3>
-          <p class="text-sm text-brand-muted mt-2">
+          <p v-if="teacher.description" class="text-sm text-brand-muted mt-2">
             {{ teacher.description }}
           </p>
-          <div class="mt-3 flex flex-wrap gap-2">
+          <div v-if="teacher.links.length" class="mt-3 flex flex-wrap gap-2">
             <a
               v-for="link in teacher.links"
               :key="link.href"
