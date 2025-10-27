@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, provide, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, provide, ref, watchEffect } from 'vue';
 
 import AppHeader from '@/components/AppHeader.vue';
 import AppFooter from '@/components/AppFooter.vue';
@@ -9,58 +9,67 @@ import EquipmentView from '@/views/EquipmentView.vue';
 import TeachersView from '@/views/TeachersView.vue';
 import ApiTestView from '@/views/ApiTestView.vue';
 
-const routeConfig = {
-  '/': { name: 'about', component: AboutView, title: 'О нас — Kropka Studio' },
-  '/pricing': { name: 'pricing', component: PricingView, title: 'Цены — Kropka Studio' },
-  '/equipment': { name: 'equipment', component: EquipmentView, title: 'Оборудование — Kropka Studio' },
-  '/teachers': { name: 'teachers', component: TeachersView, title: 'Преподаватели — Kropka Studio' },
-  '/api/test': { name: 'api-test', component: ApiTestView, title: 'API тесты — Kropka Studio' },
+const routes = {
+  '/': { path: '/', name: 'about', component: AboutView, title: 'О нас — Kropka Studio' },
+  '/pricing': { path: '/pricing', name: 'pricing', component: PricingView, title: 'Цены — Kropka Studio' },
+  '/equipment': {
+    path: '/equipment',
+    name: 'equipment',
+    component: EquipmentView,
+    title: 'Оборудование — Kropka Studio',
+  },
+  '/teachers': {
+    path: '/teachers',
+    name: 'teachers',
+    component: TeachersView,
+    title: 'Преподаватели — Kropka Studio',
+  },
+  '/api/test': { path: '/api/test', name: 'api-test', component: ApiTestView, title: 'API тесты — Kropka Studio' },
 };
 
-const fallbackPath = '/';
+const fallbackRoute = routes['/'] ?? Object.values(routes)[0];
+const resolveRoute = (path) => routes[path] ?? fallbackRoute;
 
-const resolvePath = (path) => (routeConfig[path] ? path : fallbackPath);
+const currentRoute = ref(resolveRoute(window.location.pathname));
 
-const currentPath = ref(resolvePath(window.location.pathname));
-
-const updateTitle = () => {
-  const route = routeConfig[currentPath.value];
-  if (route?.title) {
-    document.title = route.title;
-  }
-};
-
-if (currentPath.value !== window.location.pathname) {
-  window.history.replaceState({}, '', currentPath.value);
+if (currentRoute.value.path !== window.location.pathname) {
+  window.history.replaceState({}, '', currentRoute.value.path);
 }
 
-const navigate = (path) => {
-  const target = resolvePath(path);
-  if (target === currentPath.value) {
+const setRoute = (route) => {
+  if (route.path === currentRoute.value.path) {
     return;
   }
-  currentPath.value = target;
-  window.history.pushState({}, '', target);
-  updateTitle();
+
+  currentRoute.value = route;
+  window.history.pushState({}, '', route.path);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
+const navigate = (path) => {
+  setRoute(resolveRoute(path));
+};
+
 const handlePopState = () => {
-  currentPath.value = resolvePath(window.location.pathname);
-  updateTitle();
+  currentRoute.value = resolveRoute(window.location.pathname);
 };
 
 onMounted(() => {
   window.addEventListener('popstate', handlePopState);
-  updateTitle();
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('popstate', handlePopState);
 });
 
-const currentComponent = computed(() => routeConfig[currentPath.value].component);
-const currentRouteName = computed(() => routeConfig[currentPath.value].name);
+watchEffect(() => {
+  if (currentRoute.value?.title) {
+    document.title = currentRoute.value.title;
+  }
+});
+
+const currentComponent = computed(() => currentRoute.value.component);
+const currentRouteName = computed(() => currentRoute.value.name);
 
 provide('navigate', navigate);
 provide('currentRouteName', currentRouteName);
