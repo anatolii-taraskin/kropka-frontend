@@ -27,11 +27,15 @@ const tariffs = computed(() =>
 
 const hasData = computed(() => tariffs.value.length > 0);
 
-const promotionMessage = computed(
-  () => meta.value?.promotion_message ?? 'Скидка 20% при покупке месячного абонемента на 5 занятий.'
-);
+const promotionMessage = computed(() => {
+  const message = meta.value?.promotion_message;
+  return typeof message === 'string' ? message.trim() : '';
+});
 
-const bookingUrl = computed(() => studioData.value?.booking_url ?? 'https://t.me/kropka_batumi_admin');
+const bookingUrl = computed(() => {
+  const url = studioData.value?.booking_url;
+  return typeof url === 'string' ? url.trim() : '';
+});
 
 const fetchPrices = async () => {
   try {
@@ -59,7 +63,10 @@ onMounted(() => {
     <div class="mx-auto max-w-7xl px-4">
       <h2 class="text-2xl font-bold mb-6">Прайс</h2>
 
-      <div class="rounded-2xl border border-dashed border-brand-accent/50 bg-white/[.03] px-5 py-4 mb-6">
+      <div
+        v-if="promotionMessage"
+        class="rounded-2xl border border-dashed border-brand-accent/50 bg-white/[.03] px-5 py-4 mb-6"
+      >
         <div class="flex items-center gap-3">
           <span class="text-lg leading-none">🎟️</span>
           <p class="text-sm leading-6 text-brand-muted">{{ promotionMessage }}</p>
@@ -101,16 +108,22 @@ onMounted(() => {
       </div>
 
       <p class="mt-6 text-xs text-brand-muted">
-        Цены указаны в лари (₾). Актуальные слоты и бронирование — через
-        <a
-          :href="bookingUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-1 underline-offset-2 hover:text-brand-accent"
-        >
-          <span class="text-sm">👤</span>
-          <span>администратора в Telegram</span>
-        </a>.
+        Цены указаны в лари (₾).
+        <template v-if="bookingUrl">
+          Актуальные слоты и бронирование — через
+          <a
+            :href="bookingUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1 underline-offset-2 hover:text-brand-accent"
+          >
+            <span class="text-sm">👤</span>
+            <span>администратора в Telegram</span>
+          </a>.
+        </template>
+        <template v-else>
+          Актуальные слоты уточняйте у администратора.
+        </template>
       </p>
     </div>
   </section>

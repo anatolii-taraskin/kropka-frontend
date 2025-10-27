@@ -25,212 +25,258 @@ const {
   error: rulesError,
 } = storeToRefs(rulesStore);
 
-const defaultFeatures = [
-  { icon: '🎙️', text: 'Репетиционная студия в Батуми' },
-  { icon: '🔊', text: 'У нас можно громко' },
-  { icon: '❄️', text: 'Кондиционер работает — окна во время занятий не открываем' },
-];
+const toStringValue = (value) => (value == null ? '' : `${value}`.trim());
 
-const defaultServices = [
-  'Репетиции групп и сольных артистов',
-  'Запись и продакшн',
-  'Уроки музыки',
-  'Чистота и аккуратность: вещи после себя возвращаем на место',
-];
-
-const defaultLinks = [
-  { label: '📸 Instagram', href: 'https://www.instagram.com/kropka_batumi/' },
-  { label: '📘 Facebook', href: 'https://www.facebook.com/Kropka.Batumi' },
-  { label: '💬 Telegram-канал', href: 'https://t.me/kropka_batumi' },
-  { label: '👤 Администратор в TG', href: 'https://t.me/kropka_batumi_admin' },
-];
-
-const defaultContacts = [
-  {
-    label: '📞',
-    content: '+995 596 173 001',
-    isCopy: true,
-    value: '+995596173001',
-  },
-  {
-    label: '✉️',
-    content: 'kropka.batumi@gmail.com',
-    href: 'mailto:kropka.batumi@gmail.com',
-  },
-  {
-    label: '📍',
-    content: '13t Agmashenebeli st., Batumi, Georgia',
-  },
-];
-
-const defaultStudio = {
-  name: 'Репетиционная студия в Батуми',
-  tagline: 'У нас можно громко 🔊',
-  address: '13t Agmashenebeli st., Batumi',
-  phone: '+995 596 173 001',
-  email: 'kropka.batumi@gmail.com',
-  booking_url: 'https://t.me/kropka_batumi_admin',
-};
-
-const parseListValue = (value, fallback = []) => {
+const toList = (value) => {
   if (!value) {
-    return [...fallback];
+    return [];
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => `${item}`.trim()).filter(Boolean);
+    return value.map(toStringValue).filter(Boolean);
   }
 
   if (typeof value === 'string') {
     const trimmed = value.trim();
+
     if (!trimmed) {
-      return [...fallback];
+      return [];
     }
 
     try {
       const parsed = JSON.parse(trimmed);
       if (Array.isArray(parsed)) {
-        return parsed.map((item) => `${item}`.trim()).filter(Boolean);
+        return parsed.map(toStringValue).filter(Boolean);
       }
     } catch (error) {
-      // ignore JSON parse errors – fallback to splitting strategy
+      // ignore invalid JSON strings
     }
 
-    const splitValues = trimmed
+    return trimmed
       .split(/\r?\n|[•\-–\u2022,;]+/)
       .map((item) => item.trim())
       .filter(Boolean);
-
-    return splitValues.length ? splitValues : [...fallback];
   }
 
-  return [...fallback];
+  return [];
 };
 
-const extractPrefixedValues = (source = {}, prefix) =>
+const getValuesByPrefix = (source = {}, prefix) =>
   Object.entries(source)
     .filter(([key]) => key.startsWith(`${prefix}_`))
     .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
-    .map(([, value]) => `${value}`.trim())
+    .map(([, value]) => toStringValue(value))
     .filter(Boolean);
 
 const normalizePhoneNumber = (value) => {
-  if (!value) {
-    return '';
-  }
-
-  const clean = `${value}`.replace(/[^+\d]/g, '');
+  const clean = toStringValue(value).replace(/[^+\d]/g, '');
   return clean.startsWith('+') ? clean : clean;
 };
 
-const mapStudioData = (data) => {
-  const merged = { ...defaultStudio, ...(data ?? {}) };
+const buildFeatureList = (source = {}) => {
+  const raw = [];
 
-  const features = [
-    ...parseListValue(merged.features, []),
-    ...parseListValue(merged.features_list, []),
-    ...extractPrefixedValues(merged, 'feature'),
-  ];
-
-  const services = [
-    ...parseListValue(merged.services, []),
-    ...parseListValue(merged.services_list, []),
-    ...extractPrefixedValues(merged, 'service'),
-  ];
-
-  const featureTexts = features.length ? features : defaultFeatures.map((feature) => feature.text);
-  const featureIcons = defaultFeatures.map((feature) => feature.icon);
-
-  const normalizedFeatures = featureTexts.map((text, index) => ({
-    icon: featureIcons[index] ?? '🎵',
-    text,
-  }));
-
-  const normalizedServices = services.length ? services : [...defaultServices];
-
-  const phoneDisplay = merged.phone ?? defaultStudio.phone;
-  const normalizedPhone = normalizePhoneNumber(phoneDisplay);
-
-  const uniqueContacts = [];
-  const contactKeys = new Set();
-
-  const pushContact = (contact) => {
-    const key = `${contact.label ?? ''}-${contact.content ?? ''}-${contact.href ?? ''}`;
-    if (!contactKeys.has(key)) {
-      contactKeys.add(key);
-      uniqueContacts.push(contact);
+  const appendValues = (values) => {
+    if (!values) {
+      return;
     }
+
+    if (Array.isArray(values)) {
+      values.forEach((item) => raw.push(item));
+      return;
+    }
+
+    toList(values).forEach((item) => raw.push(item));
   };
 
+  appendValues(source.features);
+  appendValues(source.features_list);
+  appendValues(getValuesByPrefix(source, 'feature'));
+
+  const features = [];
+  const seen = new Set();
+
+  raw.forEach((item) => {
+    if (item && typeof item === 'object') {
+      const text = toStringValue(item.text);
+      if (!text || seen.has(text)) {
+        return;
+      }
+
+      seen.add(text);
+      features.push({
+        icon: toStringValue(item.icon) || '•',
+        text,
+      });
+      return;
+    }
+
+    const text = toStringValue(item);
+    if (!text || seen.has(text)) {
+      return;
+    }
+
+    seen.add(text);
+    features.push({ icon: '•', text });
+  });
+
+  return features;
+};
+
+const buildServices = (source = {}) => {
+  const raw = [
+    ...toList(source.services),
+    ...toList(source.services_list),
+    ...getValuesByPrefix(source, 'service'),
+  ];
+
+  const seen = new Set();
+  return raw.filter((item) => {
+    if (seen.has(item)) {
+      return false;
+    }
+
+    seen.add(item);
+    return true;
+  });
+};
+
+const buildContacts = (source = {}, normalizedPhone = '') => {
+  const contacts = [];
+  const seen = new Set();
+
+  const pushContact = (contact) => {
+    const content = toStringValue(contact?.content);
+    if (!content) {
+      return;
+    }
+
+    const label = toStringValue(contact?.label) || '•';
+    const href = toStringValue(contact?.href);
+
+    const key = `${label}-${content}-${href}`;
+    if (seen.has(key)) {
+      return;
+    }
+
+    seen.add(key);
+    contacts.push({
+      label,
+      content,
+      href: href || undefined,
+      isCopy: Boolean(contact?.isCopy),
+      value: contact?.value ?? undefined,
+    });
+  };
+
+  const phoneDisplay = toStringValue(source.phone);
   if (phoneDisplay) {
     pushContact({
       label: '📞',
       content: phoneDisplay,
       isCopy: true,
-      value: normalizedPhone,
+      value: normalizedPhone || phoneDisplay,
     });
   }
 
-  if (merged.email) {
+  const email = toStringValue(source.email);
+  if (email) {
     pushContact({
       label: '✉️',
-      content: merged.email,
-      href: `mailto:${merged.email}`,
+      content: email,
+      href: `mailto:${email}`,
     });
   }
 
-  if (merged.address) {
+  const address = toStringValue(source.address);
+  if (address) {
     pushContact({
       label: '📍',
-      content: merged.address,
+      content: address,
     });
   }
 
-  parseListValue(merged.contacts).forEach((item) => {
-    pushContact({ label: '•', content: item });
+  toList(source.contacts).forEach((content) => {
+    pushContact({ label: '•', content });
   });
 
-  const contacts = uniqueContacts.length ? uniqueContacts : [...defaultContacts];
+  return contacts;
+};
 
-  const linksFromApi = parseListValue(merged.links)
-    .map((entry) => ({ label: entry, href: entry }))
-    .filter((item) => item.href);
+const buildLinks = (source = {}) => {
+  const known = [
+    source.instagram_url ? { label: '📸 Instagram', href: toStringValue(source.instagram_url) } : null,
+    source.facebook_url ? { label: '📘 Facebook', href: toStringValue(source.facebook_url) } : null,
+    source.telegram_channel_url
+      ? { label: '💬 Telegram-канал', href: toStringValue(source.telegram_channel_url) }
+      : null,
+    source.telegram_url ? { label: '💬 Telegram', href: toStringValue(source.telegram_url) } : null,
+    source.telegram_admin_url
+      ? { label: '👤 Администратор в TG', href: toStringValue(source.telegram_admin_url) }
+      : null,
+    source.website_url ? { label: '🌐 Сайт', href: toStringValue(source.website_url) } : null,
+  ];
 
-  const mergedLinks = [
-    merged.instagram_url ? { label: '📸 Instagram', href: merged.instagram_url } : null,
-    merged.facebook_url ? { label: '📘 Facebook', href: merged.facebook_url } : null,
-    merged.telegram_channel_url ? { label: '💬 Telegram-канал', href: merged.telegram_channel_url } : null,
-    merged.telegram_url ? { label: '💬 Telegram', href: merged.telegram_url } : null,
-    merged.telegram_admin_url ? { label: '👤 Администратор в TG', href: merged.telegram_admin_url } : null,
-    merged.website_url ? { label: '🌐 Сайт', href: merged.website_url } : null,
-    ...linksFromApi,
-    ...defaultLinks,
-  ]
-    .filter(Boolean)
-    .reduce((acc, link) => {
-      if (!acc.some((item) => item.href === link.href)) {
-        acc.push(link);
-      }
-      return acc;
-    }, []);
+  const additional = toList(source.links).map((entry) => {
+    const href = toStringValue(entry);
+    if (!href) {
+      return null;
+    }
+
+    return { label: href, href };
+  });
+
+  const links = [];
+  const seen = new Set();
+
+  [...known, ...additional].forEach((link) => {
+    if (!link) {
+      return;
+    }
+
+    const href = toStringValue(link.href);
+    if (!href || seen.has(href)) {
+      return;
+    }
+
+    seen.add(href);
+    links.push({
+      label: toStringValue(link.label) || href,
+      href,
+    });
+  });
+
+  return links;
+};
+
+const mapStudioData = (data = {}) => {
+  const name = toStringValue(data.name);
+  const tagline = toStringValue(data.tagline);
+  const address = toStringValue(data.address);
+  const phone = toStringValue(data.phone);
+  const email = toStringValue(data.email);
+  const normalizedPhone = normalizePhoneNumber(phone);
 
   return {
-    name: merged.name ?? defaultStudio.name,
-    tagline: merged.tagline ?? defaultStudio.tagline,
-    address: merged.address ?? defaultStudio.address,
-    phone: phoneDisplay,
+    name,
+    tagline,
+    address,
+    phone,
     normalizedPhone,
-    features: normalizedFeatures,
-    services: normalizedServices,
-    contacts,
-    links: mergedLinks,
-    bookingUrl: merged.booking_url ?? defaultStudio.booking_url,
-    scheduleUrl: merged.schedule_url ?? '',
-    description: merged.description ?? '',
+    features: buildFeatureList(data),
+    services: buildServices(data),
+    contacts: buildContacts({
+      phone,
+      email,
+      address,
+      contacts: data.contacts,
+    }, normalizedPhone),
+    links: buildLinks(data),
+    bookingUrl: toStringValue(data.booking_url),
   };
 };
 
-const studioContent = computed(() => mapStudioData(studioData.value));
+const studioContent = computed(() => mapStudioData(studioData.value ?? {}));
 
 const heroSubtitle = computed(() => {
   const parts = [studioContent.value.tagline, studioContent.value.address, studioContent.value.phone]
@@ -301,7 +347,7 @@ onMounted(() => {
       <div class="mx-auto max-w-7xl px-4 grid gap-10 lg:grid-cols-2 items-center lg:h-80">
         <div class="flex flex-col justify-center">
           <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">{{ studioContent.name }}</h1>
-          <p class="mt-4 text-brand-muted">{{ heroSubtitle }}</p>
+          <p v-if="heroSubtitle" class="mt-4 text-brand-muted">{{ heroSubtitle }}</p>
           <div class="mt-6 flex flex-wrap gap-3">
             <a
               href="/pricing"
@@ -336,17 +382,19 @@ onMounted(() => {
       <div class="grid lg:grid-cols-2 gap-8 items-start">
         <div>
           <h2 class="text-2xl font-bold mb-4">О нас</h2>
-          <div class="text-brand-muted space-y-3">
+          <div v-if="studioContent.features.length" class="text-brand-muted space-y-3">
             <div v-for="feature in studioContent.features" :key="feature.text" class="flex items-start gap-2">
               <span class="text-lg">{{ feature.icon }}</span>
               <span>{{ feature.text }}</span>
             </div>
           </div>
-          <ul class="mt-5 space-y-2 text-sm text-brand-muted list-disc list-inside">
+          <p v-else-if="!studioLoading" class="text-sm text-brand-muted">Информация о студии появится позже.</p>
+          <ul v-if="studioContent.services.length" class="mt-5 space-y-2 text-sm text-brand-muted list-disc list-inside">
             <li v-for="service in studioContent.services" :key="service">{{ service }}</li>
           </ul>
-          <div class="mt-6 flex flex-wrap gap-3">
+          <div v-if="studioContent.bookingUrl || studioContent.phone" class="mt-6 flex flex-wrap gap-3">
             <a
+              v-if="studioContent.bookingUrl"
               :href="studioContent.bookingUrl"
               target="_blank"
               rel="noopener noreferrer"
@@ -355,7 +403,8 @@ onMounted(() => {
               Записаться в Telegram
             </a>
             <CopyButton
-              :value="studioContent.normalizedPhone"
+              v-if="studioContent.phone"
+              :value="studioContent.normalizedPhone || studioContent.phone"
               class="px-5 py-3 rounded border border-white/15 hover:bg-white/5"
             >
               Скопировать телефон: {{ studioContent.phone }}
@@ -365,7 +414,7 @@ onMounted(() => {
         <div class="grid gap-6">
           <div class="mt-6 glass rounded-2xl p-6">
             <div class="font-semibold mb-3">Контакты</div>
-            <ul class="text-sm text-brand-muted space-y-2">
+            <ul v-if="studioContent.contacts.length" class="text-sm text-brand-muted space-y-2">
               <li v-for="item in studioContent.contacts" :key="`${item.label}-${item.content}`" class="flex items-start gap-2">
                 <span>{{ item.label }}</span>
                 <template v-if="item.isCopy">
@@ -383,16 +432,18 @@ onMounted(() => {
                 </template>
               </li>
             </ul>
+            <p v-else-if="!studioLoading" class="text-sm text-brand-muted">Контакты уточняются.</p>
           </div>
           <div class="glass rounded-2xl p-6">
             <div class="font-semibold mb-3">Ссылки</div>
-            <ul class="text-sm text-brand-muted space-y-2">
+            <ul v-if="studioContent.links.length" class="text-sm text-brand-muted space-y-2">
               <li v-for="link in studioContent.links" :key="link.href">
                 <a :href="link.href" target="_blank" rel="noopener noreferrer" class="hover:text-brand-accent">
                   {{ link.label }}
                 </a>
               </li>
             </ul>
+            <p v-else-if="!studioLoading" class="text-sm text-brand-muted">Ссылки появятся позже.</p>
           </div>
         </div>
       </div>
