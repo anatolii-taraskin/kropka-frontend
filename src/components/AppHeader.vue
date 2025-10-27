@@ -2,6 +2,7 @@
 import { computed, inject, ref } from 'vue';
 
 import { assetUrl } from '@/lib/assets';
+import { staticContent } from '@/lib/static-content';
 
 const navigate = inject('navigate', () => {});
 const currentRouteName = inject('currentRouteName');
@@ -15,12 +16,7 @@ const mobileOpen = ref(false);
 
 const logoSrc = assetUrl('icons/logo.png');
 
-const navConfig = [
-  { name: 'about', labelKey: 'navigation.about' },
-  { name: 'pricing', labelKey: 'navigation.pricing' },
-  { name: 'equipment', labelKey: 'navigation.equipment' },
-  { name: 'teachers', labelKey: 'navigation.teachers' },
-];
+const navConfig = staticContent.main.header?.navLinks ?? [];
 
 const activeRouteName = computed(() => currentRouteName?.value ?? 'about');
 

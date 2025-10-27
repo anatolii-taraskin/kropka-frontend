@@ -3,15 +3,17 @@ import { computed, inject, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
 import { assetUrl } from '@/lib/assets';
+import { staticContent } from '@/lib/static-content';
+import { useApiLanguage } from '@/lib/use-api-language';
 import { useEquipmentStore } from '@/stores';
 
-const fallbackImage = assetUrl('main_page/main_img.png');
+const fallbackImage = assetUrl(staticContent.equipment.fallbackImage);
 
 const equipmentStore = useEquipmentStore();
 const { items, loading, error } = storeToRefs(equipmentStore);
 
 const t = inject('t', (key) => key);
-const currentLocale = inject('currentLocale');
+const apiLanguage = useApiLanguage();
 
 const equipment = computed(() =>
   items.value
@@ -26,7 +28,6 @@ const equipment = computed(() =>
 );
 
 const hasData = computed(() => equipment.value.length > 0);
-const apiLanguage = computed(() => currentLocale?.value?.apiLang ?? currentLocale?.value?.code ?? 'ru');
 const lastEquipmentLang = ref('');
 
 const fetchEquipmentForLang = async (lang) => {
