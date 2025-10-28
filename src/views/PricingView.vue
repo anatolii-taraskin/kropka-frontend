@@ -43,7 +43,21 @@ const { data: studioData } = storeToRefs(studioStore);
 const t = inject('t', (key) => key);
 const apiLanguage = useApiLanguage();
 
-const defaultPromotionMessage = 'Скидка 20% при покупке месячного абонемента на 5 занятий.';
+const defaultPromotionMessage = computed(() => {
+  const raw = t('pricing.promotionDefault');
+  return typeof raw === 'string' ? raw.trim() : '';
+});
+
+const promotionHighlightPhrases = computed(() => {
+  const highlights = t('pricing.promotionHighlights');
+  if (!Array.isArray(highlights)) {
+    return [];
+  }
+
+  return highlights
+    .map((phrase) => (typeof phrase === 'string' ? phrase.trim() : ''))
+    .filter(Boolean);
+});
 
 const tariffs = computed(() =>
   items.value
@@ -65,7 +79,7 @@ const hasData = computed(() => tariffs.value.length > 0);
 const promotionMessage = computed(() => {
   const message = meta.value?.promotion_message;
   const normalized = typeof message === 'string' ? message.trim() : '';
-  return normalized || defaultPromotionMessage;
+  return normalized || defaultPromotionMessage.value;
 });
 
 const promotionMessageMarkup = computed(() => {
@@ -75,11 +89,14 @@ const promotionMessageMarkup = computed(() => {
     return '';
   }
 
-  const highlighted = [
-    'Скидка 20%',
-    'месячного абонемента',
-  ].reduce((result, phrase) => {
+  const highlightPhrases = promotionHighlightPhrases.value;
+
+  const highlighted = highlightPhrases.reduce((result, phrase) => {
     const escapedPhrase = escapeHtml(phrase);
+    if (!escapedPhrase) {
+      return result;
+    }
+
     const regex = new RegExp(escapeRegExp(escapedPhrase), 'g');
     return result.replace(
       regex,
