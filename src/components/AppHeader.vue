@@ -136,8 +136,12 @@ const handleLocaleChange = (code) => {
           v-for="link in navLinks"
           :key="link.name"
           :href="link.href"
-          class="hover:text-brand-accent"
-          :class="{ 'text-brand-accent': activeRouteName === link.name }"
+          class="transition-colors"
+          :class="
+            activeRouteName === link.name
+              ? 'text-white font-semibold hover:text-white'
+              : 'text-white font-normal hover:text-brand-accent'
+          "
           @click.prevent="handleNavigate(link.name)"
         >
           {{ link.label }}
@@ -226,8 +230,12 @@ const handleLocaleChange = (code) => {
           v-for="link in navLinks"
           :key="`mobile-${link.name}`"
           :href="link.href"
-          class="py-2"
-          :class="{ 'text-brand-accent': activeRouteName === link.name }"
+          class="py-2 transition-colors"
+          :class="
+            activeRouteName === link.name
+              ? 'text-white font-semibold hover:text-white'
+              : 'text-white font-normal hover:text-brand-accent'
+          "
           @click.prevent="handleNavigate(link.name)"
         >
           {{ link.label }}
