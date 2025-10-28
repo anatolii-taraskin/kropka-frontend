@@ -5,6 +5,35 @@ import { storeToRefs } from 'pinia';
 import { useApiLanguage } from '@/lib/use-api-language';
 import { usePricesStore, useStudioStore } from '@/stores';
 
+const escapeHtml = (value) =>
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const escapeRegExp = (value) =>
+  String(value).replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
+
+const CURRENCY_PATTERN = /((?:₾|\$|€)\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?\s*(?:₾|\$|€))/g;
+
+const highlightCurrency = (value) => {
+  const escapedRow = escapeHtml(value);
+  return escapedRow.replace(
+    CURRENCY_PATTERN,
+    '<span class="text-brand-text font-medium">$1</span>',
+  );
+};
+
+const formatTariffRow = (row) => {
+  if (row == null) {
+    return '';
+  }
+
+  return highlightCurrency(row);
+};
+
 const pricesStore = usePricesStore();
 const studioStore = useStudioStore();
 
@@ -13,6 +42,8 @@ const { data: studioData } = storeToRefs(studioStore);
 
 const t = inject('t', (key) => key);
 const apiLanguage = useApiLanguage();
+
+const defaultPromotionMessage = 'Скидка 20% при покупке месячного абонемента на 5 занятий.';
 
 const tariffs = computed(() =>
   items.value
@@ -33,7 +64,30 @@ const hasData = computed(() => tariffs.value.length > 0);
 
 const promotionMessage = computed(() => {
   const message = meta.value?.promotion_message;
-  return typeof message === 'string' ? message.trim() : '';
+  const normalized = typeof message === 'string' ? message.trim() : '';
+  return normalized || defaultPromotionMessage;
+});
+
+const promotionMessageMarkup = computed(() => {
+  const message = promotionMessage.value;
+
+  if (!message) {
+    return '';
+  }
+
+  const highlighted = [
+    'Скидка 20%',
+    'месячного абонемента',
+  ].reduce((result, phrase) => {
+    const escapedPhrase = escapeHtml(phrase);
+    const regex = new RegExp(escapeRegExp(escapedPhrase), 'g');
+    return result.replace(
+      regex,
+      `<strong class="text-brand-text">${escapedPhrase}</strong>`,
+    );
+  }, escapeHtml(message));
+
+  return highlighted;
 });
 
 const bookingUrl = computed(() => {
@@ -114,7 +168,7 @@ const fetchPrices = async () => {
       >
         <div class="flex items-center gap-3">
           <span class="text-lg leading-none">🎟️</span>
-          <p class="text-sm leading-6 text-brand-muted">{{ promotionMessage }}</p>
+          <p class="text-sm leading-6 text-brand-muted" v-html="promotionMessageMarkup"></p>
         </div>
       </div>
 
@@ -139,7 +193,7 @@ const fetchPrices = async () => {
           <ul class="mt-3 text-sm text-brand-muted space-y-1">
             <li v-for="(row, index) in tariff.rows" :key="index" class="flex items-start gap-2">
               <span class="text-brand-text">•</span>
-              <span>{{ row }}</span>
+              <span v-html="formatTariffRow(row)"></span>
             </li>
           </ul>
           <a
