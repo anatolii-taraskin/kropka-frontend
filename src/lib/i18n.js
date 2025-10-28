@@ -97,6 +97,7 @@ export const translations = {
       empty: 'Пока нет активных преподавателей.',
       contact: {
         telegram: 'Написать в TG',
+        channel: 'Наш канал',
         instagram: 'Instagram',
         facebook: 'Facebook',
         website: 'Сайт',
@@ -210,6 +211,7 @@ export const translations = {
       empty: 'No teachers are published yet.',
       contact: {
         telegram: 'Message on Telegram',
+        channel: 'Our channel',
         instagram: 'Instagram',
         facebook: 'Facebook',
         website: 'Website',
@@ -323,6 +325,7 @@ export const translations = {
       empty: 'აქტიური მასწავლებლები ჯერ არ არიან.',
       contact: {
         telegram: 'მიწერე Telegram-ში',
+        channel: 'ჩვენი არხი',
         instagram: 'Instagram',
         facebook: 'Facebook',
         website: 'ვებსაიტი',
