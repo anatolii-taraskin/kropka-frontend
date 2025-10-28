@@ -11,6 +11,8 @@ const { items, loading, error } = storeToRefs(teachersStore);
 const t = inject('t', (key) => key);
 const apiLanguage = useApiLanguage();
 
+const TELEGRAM_CHANNEL_URL = 'https://t.me/kropka_batumi';
+
 const teachers = computed(() =>
   items.value
     .slice()
@@ -18,10 +20,11 @@ const teachers = computed(() =>
     .map((item) => {
       const links = [];
 
-      if (item.telegram_url) {
+      const telegramUrl = item.telegram_url ?? item.telegram;
+      if (telegramUrl) {
         links.push({
           label: t('teachers.contact.telegram'),
-          href: item.telegram_url,
+          href: telegramUrl,
           icon: '💬',
           primary: true,
         });
@@ -38,6 +41,12 @@ const teachers = computed(() =>
       if (item.website_url) {
         links.push({ label: t('teachers.contact.website'), href: item.website_url, icon: '🌐' });
       }
+
+      links.push({
+        label: t('teachers.contact.channel'),
+        href: TELEGRAM_CHANNEL_URL,
+        icon: '📣',
+      });
 
       return {
         id: item.id,
