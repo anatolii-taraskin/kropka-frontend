@@ -46,6 +46,7 @@ export const translations = {
       hero: {
         pricingCta: 'Прайс',
         scheduleCta: 'Расписание и инфо',
+        subtitlePrefix: 'У нас можно громко 🔊',
       },
       title: 'О нас',
       noInfo: 'Информация о студии появится позже.',
@@ -160,6 +161,7 @@ export const translations = {
       hero: {
         pricingCta: 'Pricing',
         scheduleCta: 'Schedule & info',
+        subtitlePrefix: 'You can play loud here 🔊',
       },
       title: 'About us',
       noInfo: 'Studio information will be added soon.',
@@ -274,6 +276,7 @@ export const translations = {
       hero: {
         pricingCta: 'ტარიფები',
         scheduleCta: 'განრიგი და ინფორმაცია',
+        subtitlePrefix: 'ჩვენთან ხმამაღლა შეგიძლიათ დაკვრა 🔊',
       },
       title: 'ჩვენ შესახებ',
       noInfo: 'სტუდიის ინფორმაცია მალე დაემატება.',

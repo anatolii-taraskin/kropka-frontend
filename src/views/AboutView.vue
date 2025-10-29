@@ -265,8 +265,8 @@ const buildLinks = (source = {}) => {
 const mapStudioData = (data = {}, fallback = {}) => {
   const name = toStringValue(data.name) || toStringValue(fallback.name);
   const tagline = toStringValue(data.tagline) || toStringValue(fallback.tagline);
-  const address = toStringValue(data.address) || toStringValue(fallback.address);
-  const phone = toStringValue(data.phone) || toStringValue(fallback.phone);
+  const address = toStringValue(data.address);
+  const phone = toStringValue(data.phone);
   const email = toStringValue(data.email) || toStringValue(fallback.email);
   const normalizedPhone = normalizePhoneNumber(phone);
 
@@ -385,8 +385,10 @@ const fallbackStudioRaw = computed(() => {
 const studioContent = computed(() => mapStudioData(studioData.value ?? {}, fallbackStudioRaw.value));
 
 const heroSubtitle = computed(() => {
-  const parts = [studioContent.value.tagline, studioContent.value.address, studioContent.value.phone]
-    .map((part) => part?.trim())
+  currentLocaleCode.value;
+  const subtitlePrefix = toStringValue(t('about.hero.subtitlePrefix'));
+  const parts = [subtitlePrefix, studioContent.value.address, studioContent.value.phone]
+    .map((part) => toStringValue(part))
     .filter(Boolean);
 
   return parts.join(' · ');
