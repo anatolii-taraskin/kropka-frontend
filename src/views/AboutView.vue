@@ -55,8 +55,7 @@ const studioContent = computed(() =>
 
 const heroSubtitle = computed(() => {
   currentLocaleCode.value;
-  const subtitlePrefix = toStringValue(t('about.hero.subtitlePrefix'));
-  const parts = [subtitlePrefix, studioContent.value.address, studioContent.value.phone]
+  const parts = [studioContent.value.address, studioContent.value.phone]
     .map((part) => toStringValue(part))
     .filter(Boolean);
 
