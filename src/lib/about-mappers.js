@@ -1,5 +1,7 @@
 const toStringValue = (value) => (value == null ? '' : `${value}`.trim());
 
+const pickFirstUrl = (...values) => values.map((value) => toStringValue(value)).find(Boolean) || '';
+
 const toList = (value) => {
   if (!value) {
     return [];
@@ -296,7 +298,16 @@ const mapStudioData = (data = {}, fallback = {}, { translate = (key) => key } = 
 
       return buildLinks(fallback, translate);
     })(),
-    bookingUrl: toStringValue(data.booking_url) || toStringValue(fallback.booking_url),
+    bookingUrl: pickFirstUrl(
+      data.booking_url,
+      data.telegram_booking_url,
+      data.telegram_admin_url,
+      data.telegram_url,
+      fallback.booking_url,
+      fallback.telegram_booking_url,
+      fallback.telegram_admin_url,
+      fallback.telegram_url,
+    ),
   };
 };
 
@@ -342,7 +353,10 @@ const buildFallbackStudio = (fallback = {}, { localeCode, defaultLocaleCode }) =
     address: resolve(fallback.address),
     phone: resolve(fallback.phone),
     email: resolve(fallback.email),
-    booking_url: resolve(fallback.bookingUrl),
+    booking_url: resolve(fallback.bookingUrl ?? fallback.booking_url),
+    telegram_url: resolve(fallback.telegramUrl ?? fallback.telegram_url),
+    telegram_admin_url: resolve(fallback.telegramAdminUrl ?? fallback.telegram_admin_url),
+    telegram_booking_url: resolve(fallback.telegramBookingUrl ?? fallback.telegram_booking_url),
     features,
     services,
     contacts: (fallback.contacts ?? []).map((item) => resolve(item)).filter(Boolean),

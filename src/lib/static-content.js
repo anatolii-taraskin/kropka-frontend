@@ -41,6 +41,7 @@ export const staticContent = {
         en: 'Rehearsal studio in Batumi',
         ka: 'ბათუმში მდებარე სარეპეტიციო სტუდია',
       },
+      bookingUrl: 'https://t.me/kropka_batumi_admin',
       features: [
         {
           icon: '🎙️',
