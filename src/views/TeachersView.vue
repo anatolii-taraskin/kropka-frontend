@@ -1,7 +1,8 @@
 <script setup>
-import { computed, inject, ref, watch } from 'vue';
+import { computed, inject } from 'vue';
 import { storeToRefs } from 'pinia';
 
+import { useCachedResourceLoader } from '@/composables/useCachedResourceLoader';
 import { useApiLanguage } from '@/lib/use-api-language';
 import { useTeachersStore } from '@/stores';
 
@@ -59,44 +60,16 @@ const teachers = computed(() =>
 );
 
 const hasData = computed(() => teachers.value.length > 0);
-const lastTeachersLang = ref('');
-
-const fetchTeachersForLang = async (lang) => {
-  if (!lang) {
-    return;
-  }
-
-  if (lastTeachersLang.value === lang && items.value.length) {
-    return;
-  }
-
-  try {
-    await teachersStore.fetchTeachers({ lang });
-    lastTeachersLang.value = lang;
-  } catch (fetchError) {
-    console.error('Failed to load teachers from the API', fetchError);
-    if (!items.value.length) {
-      lastTeachersLang.value = '';
-    }
-  }
-};
-
-watch(
+const { loadCurrent: reloadTeachers } = useCachedResourceLoader({
   apiLanguage,
-  (lang) => {
-    fetchTeachersForLang(lang);
-  },
-  { immediate: true },
-);
-
-const fetchTeachers = async () => {
-  try {
-    await teachersStore.fetchTeachers({ lang: apiLanguage.value });
-    lastTeachersLang.value = apiLanguage.value;
-  } catch (fetchError) {
+  fetcher: (lang) => teachersStore.fetchTeachers({ lang }),
+  hasData: () => items.value.length > 0,
+  onError: (fetchError) => {
     console.error('Failed to load teachers from the API', fetchError);
-  }
-};
+  },
+});
+
+const fetchTeachers = () => reloadTeachers().catch(() => {});
 </script>
 
 <template>

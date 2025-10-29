@@ -1,9 +1,10 @@
 <script setup>
-import { computed, inject, ref, watch } from 'vue';
+import { computed, inject } from 'vue';
 import { storeToRefs } from 'pinia';
 
 import { assetUrl } from '@/lib/assets';
 import { staticContent } from '@/lib/static-content';
+import { useCachedResourceLoader } from '@/composables/useCachedResourceLoader';
 import { useApiLanguage } from '@/lib/use-api-language';
 import { useEquipmentStore } from '@/stores';
 
@@ -28,44 +29,16 @@ const equipment = computed(() =>
 );
 
 const hasData = computed(() => equipment.value.length > 0);
-const lastEquipmentLang = ref('');
-
-const fetchEquipmentForLang = async (lang) => {
-  if (!lang) {
-    return;
-  }
-
-  if (lastEquipmentLang.value === lang && items.value.length) {
-    return;
-  }
-
-  try {
-    await equipmentStore.fetchEquipment({ lang });
-    lastEquipmentLang.value = lang;
-  } catch (fetchError) {
-    console.error('Failed to load equipment from the API', fetchError);
-    if (!items.value.length) {
-      lastEquipmentLang.value = '';
-    }
-  }
-};
-
-watch(
+const { loadCurrent: reloadEquipment } = useCachedResourceLoader({
   apiLanguage,
-  (lang) => {
-    fetchEquipmentForLang(lang);
-  },
-  { immediate: true },
-);
-
-const fetchEquipment = async () => {
-  try {
-    await equipmentStore.fetchEquipment({ lang: apiLanguage.value });
-    lastEquipmentLang.value = apiLanguage.value;
-  } catch (fetchError) {
+  fetcher: (lang) => equipmentStore.fetchEquipment({ lang }),
+  hasData: () => items.value.length > 0,
+  onError: (fetchError) => {
     console.error('Failed to load equipment from the API', fetchError);
-  }
-};
+  },
+});
+
+const fetchEquipment = () => reloadEquipment().catch(() => {});
 </script>
 
 <template>

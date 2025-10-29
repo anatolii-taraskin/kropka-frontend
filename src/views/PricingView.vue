@@ -1,7 +1,8 @@
 <script setup>
-import { computed, inject, ref, watch } from 'vue';
+import { computed, inject } from 'vue';
 import { storeToRefs } from 'pinia';
 
+import { useCachedResourceLoader } from '@/composables/useCachedResourceLoader';
 import { useApiLanguage } from '@/lib/use-api-language';
 import { usePricesStore, useStudioStore } from '@/stores';
 
@@ -112,66 +113,25 @@ const bookingUrl = computed(() => {
   return typeof url === 'string' ? url.trim() : '';
 });
 
-const lastPricesLang = ref('');
-const lastStudioLang = ref('');
-
-const fetchPricesForLang = async (lang) => {
-  if (!lang) {
-    return;
-  }
-
-  if (lastPricesLang.value === lang && items.value.length) {
-    return;
-  }
-
-  try {
-    await pricesStore.fetchPrices({ lang });
-    lastPricesLang.value = lang;
-  } catch (fetchError) {
-    console.error('Failed to load price list from the API', fetchError);
-    if (!items.value.length) {
-      lastPricesLang.value = '';
-    }
-  }
-};
-
-const fetchStudioForLang = async (lang) => {
-  if (!lang) {
-    return;
-  }
-
-  if (lastStudioLang.value === lang && studioData.value) {
-    return;
-  }
-
-  try {
-    await studioStore.fetchStudio({ lang });
-    lastStudioLang.value = lang;
-  } catch (fetchError) {
-    console.error('Failed to fetch studio info for booking link', fetchError);
-    if (!studioData.value) {
-      lastStudioLang.value = '';
-    }
-  }
-};
-
-watch(
+const { loadCurrent: reloadPrices } = useCachedResourceLoader({
   apiLanguage,
-  (lang) => {
-    fetchPricesForLang(lang);
-    fetchStudioForLang(lang);
-  },
-  { immediate: true },
-);
-
-const fetchPrices = async () => {
-  try {
-    await pricesStore.fetchPrices({ lang: apiLanguage.value });
-    lastPricesLang.value = apiLanguage.value;
-  } catch (fetchError) {
+  fetcher: (lang) => pricesStore.fetchPrices({ lang }),
+  hasData: () => items.value.length > 0,
+  onError: (fetchError) => {
     console.error('Failed to load price list from the API', fetchError);
-  }
-};
+  },
+});
+
+useCachedResourceLoader({
+  apiLanguage,
+  fetcher: (lang) => studioStore.fetchStudio({ lang }),
+  hasData: () => Boolean(studioData.value),
+  onError: (fetchError) => {
+    console.error('Failed to fetch studio info for booking link', fetchError);
+  },
+});
+
+const fetchPrices = () => reloadPrices().catch(() => {});
 </script>
 
 <template>
