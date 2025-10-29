@@ -19,6 +19,11 @@ export const staticContent = {
         en: '© Kropka Studio, Batumi',
         ka: '© Kropka Studio, ბათუმი',
       },
+      credit: {
+        ru: 'Разработка — Anatolii Taraskin',
+        en: 'Developed by Anatolii Taraskin',
+        ka: 'შექმნილია Anatolii Taraskin-ის მიერ',
+      },
       map: {
         embedUrl: 'https://www.google.com/maps?q=Kropka+Music+Studio+Batumi&output=embed',
         searchUrl: 'https://www.google.com/maps/search/?api=1&query=Kropka+Music+Studio,+Batumi,+Georgia',

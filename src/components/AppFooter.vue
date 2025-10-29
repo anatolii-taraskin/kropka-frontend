@@ -20,6 +20,7 @@ const brandName = computed(
 const copyright = computed(
   () => footerContent.copyright[localeCode.value] ?? footerContent.copyright.ru,
 );
+const credit = computed(() => footerContent.credit?.[localeCode.value] ?? footerContent.credit?.ru ?? '');
 </script>
 
 <template>
@@ -59,8 +60,14 @@ const copyright = computed(
         </div>
       </div>
     </div>
-    <div class="mx-auto max-w-7xl px-4 pb-8 text-sm text-brand-muted">
-      {{ copyright }}
+    <div
+      class="mx-auto max-w-7xl px-4 pb-8 text-sm text-brand-muted flex flex-wrap items-center gap-x-2 gap-y-1"
+    >
+      <span>{{ copyright }}</span>
+      <span v-if="credit" class="flex items-center gap-2">
+        <span aria-hidden="true">·</span>
+        <span>{{ credit }}</span>
+      </span>
     </div>
   </footer>
 </template>
