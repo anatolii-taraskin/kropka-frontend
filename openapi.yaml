@@ -103,7 +103,7 @@ components:
           description: Key-value pairs containing studio information
           example:
             name: Репетиционная студия в Батуми
-            address: ул. Агмашенебели, 13т, Батуми, Грузия
+            address: 13t Agmashenebeli st., Batumi
             phone: +995 596 173 001
             instagram_url: https://www.instagram.com/kropka_batumi/
         meta:
