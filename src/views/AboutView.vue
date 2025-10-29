@@ -526,7 +526,7 @@ const openScheduleAndInfo = () => {
         <div>
           <h2 class="text-2xl font-bold mb-4">{{ t('about.title') }}</h2>
           <div v-if="studioContent.features.length" class="text-brand-muted space-y-3">
-            <div v-for="feature in studioContent.features" :key="feature.text" class="flex items-start gap-2">
+            <div v-for="feature in studioContent.features" :key="feature.text" class="flex items-start gap-2 !mt-[4px]">
               <span class="text-lg">{{ feature.icon }}</span>
               <span>{{ feature.text }}</span>
             </div>
