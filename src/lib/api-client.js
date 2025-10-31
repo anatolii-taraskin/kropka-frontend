@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const DEFAULT_TIMEOUT = 10000;
-const DEFAULT_BASE_URL = 'http://localhost:8888/';
+const DEFAULT_BASE_URL = 'http://92.5.87.94/';
 
 /**
  * Shared Axios instance for talking to the public API.
